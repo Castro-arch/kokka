@@ -90,10 +90,10 @@ Proteção sempre **no servidor** (middleware + checagem nos Route Handlers), nu
 
 - **events**: `id`, `slug` (único, curto), `name`, `subtitle`, `starts_at`, `ends_at`, `status`, `closed_at`, `expires_at`, `theme` (jsonb: `primaryColor`, `font`, `coverKey`), `created_at`
 - **media**: `id`, `event_id`, `kind` (`image`|`video`), `status` (`uploading`|`processing`|`ready`|`failed`|`hidden`), `original_key`, `original_mime`, `size_bytes`, `width`, `height`, `duration_ms`, `thumb_key`, `display_key`, `device_id`, `created_at`
-- **exports**: `id`, `event_id`, `status`, `key`, `size_bytes`, `created_at`
+- **exports**: `id`, `event_id`, `status` (`pending`|`processing`|`ready`|`failed`), `key`, `size_bytes`, `created_at`
 - Tabelas do Better Auth geradas pela própria lib.
 
-Índices: `media(event_id, created_at desc)`, `events(slug)`.
+Índices: `media(event_id, created_at desc)`, `events(slug)`, `exports(event_id)`.
 
 ## Mídia
 
