@@ -57,14 +57,17 @@ build(infra): add worker dockerfile with ffmpeg
 
 - **Monorepo pnpm** (repositório `kokka`, pacotes com escopo `@kokka/*`): `apps/web`, `apps/worker`, `packages/db`, `packages/shared`
 - **Node 22 LTS**, TypeScript estrito
-- **Next.js (App Router)** em `apps/web`: páginas + Route Handlers como API. Sem NestJS.
+- **Next.js (App Router)** em `apps/web`. Sem NestJS.
+  - **Server Actions** para as mutações do admin (criar/editar evento, tema, status)
+  - **Route Handlers** para arquivos (upload da capa, PNGs gerados, downloads), SSE e todas as rotas do convidado
 - **Postgres + Drizzle ORM** em `packages/db` (schema, migrations, client)
 - **Redis**: filas BullMQ e pub/sub do realtime
 - **BullMQ** em `apps/worker`: processamento de mídia, ZIP, ciclo de vida
-- **Cloudflare R2** (API S3, `@aws-sdk/client-s3`) para todas as mídias
+- **Storage S3** (`@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner`) para todas as mídias: **Cloudflare R2** em produção, **SeaweedFS** (gateway S3) no Docker Compose local, com o bucket criado por um container de init com `aws-cli`. Cliente e URLs assinadas em `@kokka/shared/storage` (usado por web e worker); cada app valida o próprio env e passa a config.
 - **Better Auth** para login do cliente (email + senha). Sem cadastro público.
 - **Uppy** (`@uppy/aws-s3` multipart) para upload resumível direto ao R2
-- **sharp** (imagens) e **ffmpeg** (vídeos) no worker
+- **sharp** (imagens) e **ffmpeg** (vídeos) no worker; sharp também no web, só para a capa do evento
+- **qrcode** para o QR do evento; **next/og** para a arte de impressão (fontes TTF em `apps/web/assets/fonts/`, com a licença OFL de cada uma)
 - **Tailwind CSS** na interface
 - Pacotes de apoio aprovados: **server-only** (web: impede importar código de servidor no cliente) e **globals** (globais do Node na config do ESLint)
 - Deploy: **Docker Compose** na VPS via **Coolify** (serviços: web, worker, postgres, redis)
@@ -76,12 +79,13 @@ build(infra): add worker dockerfile with ffmpeg
 | Convidado | QR → `/e/{slug}`, sem login | Ver galeria, enviar/gravar foto e vídeo (só com evento ativo), baixar original |
 | Cliente (admin) | Login em `/admin` | Criar/editar eventos, personalizar, telão, ocultar/apagar mídia, encerrar, baixar ZIP |
 
-Proteção sempre **no servidor** (middleware + checagem nos Route Handlers), nunca só escondendo botão.
+Proteção sempre **no servidor** (middleware + checagem em cada página, Server Action e Route Handler), nunca só escondendo botão.
 
 ## Ciclo de vida do evento
 
 `draft` → `active` → `closed` → `expired`
 
+- Transições **só para frente**. O admin faz `draft → active → closed`; `expired` só pelo job.
 - **active**: convidados enviam e veem; telão disponível.
 - **closed**: envio bloqueado; galeria e download liberados. `expires_at = closed_at + 5 dias`.
 - Aviso na galeria 24h antes de expirar.
@@ -103,6 +107,8 @@ Proteção sempre **no servidor** (middleware + checagem nos Route Handlers), nu
 - Derivados: `thumb/{mediaId}.webp` (galeria) e `display/{mediaId}.jpg|mp4`
   - Imagem: thumb 480px + display JPEG (converte HEIC)
   - Vídeo: poster/thumb + MP4 H.264/AAC 720p, `faststart`
+  - **HEIC no worker (passo 4)**: o binário pré-compilado do sharp não decodifica HEIC (HEVC). A imagem do worker precisa de libvips com **libheif + decodificador HEVC** (ex.: libde265).
+- Capa do evento (`events/{eventId}/cover/{coverId}.webp`): upload pelo admin, aceita JPEG/PNG/WebP e recusa HEIC; o web aplica a orientação EXIF, remove os metadados e gera WebP de até 1600px.
 - Bucket privado; acesso só por **URL assinada** com expiração.
 - Limites: vídeo até 3 min / 1 GB; rate limit por `device_id` (cookie) + IP no Redis.
 
