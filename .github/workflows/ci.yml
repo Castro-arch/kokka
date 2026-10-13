@@ -63,7 +63,6 @@ jobs:
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: pnpm test
       - name: Check migrations match the schema
         run: |
           pnpm db:check
@@ -72,6 +71,13 @@ jobs:
           git diff --exit-code -- packages/db/migrations
       - name: Apply migrations
         run: pnpm db:migrate
+      - name: Seed admin
+        run: pnpm db:seed-admin
+        env:
+          ADMIN_EMAIL: admin@kokka.test
+          ADMIN_PASSWORD: ci-password-123
+      # After migrations so database-backed tests run against the real schema.
+      - run: pnpm test
 
   docker:
     name: Docker image (${{ matrix.app }})
