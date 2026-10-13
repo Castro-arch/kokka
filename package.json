@@ -17,7 +17,10 @@
     "prepare": "husky",
     "changeset": "changeset",
     "version-packages": "changeset version && pnpm install --lockfile-only",
-    "release:tag": "node scripts/tag-release.mjs"
+    "release:tag": "node scripts/tag-release.mjs",
+    "db:generate": "pnpm --filter @kokka/db generate",
+    "db:check": "pnpm --filter @kokka/db check",
+    "db:migrate": "pnpm --filter @kokka/db migrate"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
