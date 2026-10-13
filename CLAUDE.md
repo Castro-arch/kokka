@@ -40,9 +40,9 @@ build(infra): add worker dockerfile with ffmpeg
 
 ### Branches (trunk-based)
 - `main` sempre deployável e protegida: exige PR, CI verde (lint, typecheck, testes, commitlint), histórico linear e bloqueia force push. **Não exige aprovação de outra pessoa** (projeto solo).
-- Fluxo: Claude abre o PR com `gh pr create`, espera o CI e **para**; o José revisa e faz o merge (squash). Claude só faz merge se o José pedir explicitamente naquele PR.
+- Fluxo: Claude abre o PR com `gh pr create`, espera o CI e **para**; o José revisa e faz o merge (rebase and merge). Claude só faz merge se o José pedir explicitamente naquele PR.
 - Trabalho em branches curtas: `feat/<scope>-<descricao>`, `fix/...`, `chore/...`
-- Merge via PR com **squash**; título do PR também no padrão Conventional Commits
+- Merge via PR com **rebase and merge** (squash desativado): cada commit atômico chega ao `main` como está, então todos precisam passar no commitlint. O título do PR não vira commit.
 - Rebase em vez de merge para atualizar a branch
 
 ### Versionamento — SemVer
