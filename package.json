@@ -20,7 +20,9 @@
     "release:tag": "node scripts/tag-release.mjs",
     "db:generate": "pnpm --filter @kokka/db generate",
     "db:check": "pnpm --filter @kokka/db check",
-    "db:migrate": "pnpm --filter @kokka/db migrate"
+    "db:migrate": "pnpm --filter @kokka/db migrate",
+    "services:up": "docker compose up -d --wait",
+    "services:down": "docker compose down"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
