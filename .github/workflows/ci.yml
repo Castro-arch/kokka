@@ -61,6 +61,11 @@ jobs:
       REDIS_URL: redis://localhost:6379
       APP_URL: http://localhost:3000
       BETTER_AUTH_SECRET: ci-only-secret-0123456789abcdefghijklmnop
+      S3_ENDPOINT: http://localhost:9000
+      S3_REGION: us-east-1
+      S3_BUCKET: kokka
+      S3_ACCESS_KEY_ID: kokka
+      S3_SECRET_ACCESS_KEY: kokka-dev-secret
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
@@ -85,6 +90,11 @@ jobs:
         env:
           ADMIN_EMAIL: admin@kokka.test
           ADMIN_PASSWORD: ci-password-123
+      # Same SeaweedFS setup as local dev; s3-init runs to completion before the tests start.
+      - name: Start S3 storage
+        run: |
+          docker compose up -d --wait s3
+          docker compose run --rm s3-init
       # After migrations so database-backed tests run against the real schema.
       - run: pnpm test
 
