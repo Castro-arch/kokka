@@ -26,18 +26,23 @@ export default async function EventsPage() {
       ) : (
         <ul className="divide-y divide-stone-200 rounded-2xl bg-white ring-1 ring-stone-200">
           {events.map((event) => (
-            <li key={event.id} className="flex items-center justify-between gap-4 p-4">
-              <div className="min-w-0 space-y-1">
-                <p className="truncate font-medium">{event.name}</p>
-                <p className="text-sm text-stone-600">
-                  {formatDateTime(event.startsAt)} · /e/{event.slug}
-                </p>
-              </div>
-              <span
-                className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_BADGE_CLASSES[event.status]}`}
+            <li key={event.id}>
+              <Link
+                href={`/admin/eventos/${event.id}`}
+                className="flex items-center justify-between gap-4 p-4 hover:bg-stone-50"
               >
-                {STATUS_LABELS[event.status]}
-              </span>
+                <div className="min-w-0 space-y-1">
+                  <p className="truncate font-medium">{event.name}</p>
+                  <p className="text-sm text-stone-600">
+                    {formatDateTime(event.startsAt)} · /e/{event.slug}
+                  </p>
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_BADGE_CLASSES[event.status]}`}
+                >
+                  {STATUS_LABELS[event.status]}
+                </span>
+              </Link>
             </li>
           ))}
         </ul>

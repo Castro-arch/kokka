@@ -55,9 +55,16 @@ export function EventForm({ action, initialValues = {}, submitLabel }: EventForm
           {errors.form}
         </p>
       )}
-      <button type="submit" disabled={pending} className="btn-primary">
-        {pending ? "Salvando…" : submitLabel}
-      </button>
+      <div className="flex items-center gap-3">
+        <button type="submit" disabled={pending} className="btn-primary">
+          {pending ? "Salvando…" : submitLabel}
+        </button>
+        {state?.message && !pending && (
+          <p role="status" className="text-sm text-green-700">
+            {state.message}
+          </p>
+        )}
+      </div>
     </form>
   );
 }
