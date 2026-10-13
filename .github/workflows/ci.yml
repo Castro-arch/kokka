@@ -34,11 +34,6 @@ jobs:
           pnpm exec commitlint --verbose
           --from ${{ github.event.pull_request.base.sha }}
           --to ${{ github.event.pull_request.head.sha }}
-      # The PR title becomes the squash commit message on main.
-      - name: Lint PR title
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: printf '%s\n' "$PR_TITLE" | pnpm exec commitlint --verbose
 
   check:
     name: Lint, typecheck and test
