@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import nextVitals from "eslint-config-next/core-web-vitals";
 import prettier from "eslint-config-prettier";
 import { defineConfig, globalIgnores } from "eslint/config";
 import globals from "globals";
@@ -14,10 +15,15 @@ export default defineConfig(
     "packages/db/migrations/",
   ]),
   js.configs.recommended,
-  tseslint.configs.strictTypeChecked,
   {
+    files: ["apps/web/**/*.{ts,tsx,js,mjs}"],
+    extends: [nextVitals],
+    settings: { next: { rootDir: "apps/web" } },
+  },
+  {
+    files: ["**/*.{ts,tsx}"],
+    extends: [tseslint.configs.strictTypeChecked],
     languageOptions: {
-      globals: { ...globals.node },
       parserOptions: {
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
@@ -33,8 +39,9 @@ export default defineConfig(
     },
   },
   {
-    files: ["**/*.{js,mjs,cjs}"],
-    extends: [tseslint.configs.disableTypeChecked],
+    languageOptions: {
+      globals: { ...globals.node },
+    },
   },
   prettier,
 );
