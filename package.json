@@ -24,7 +24,8 @@
     "services:up": "docker compose up -d --wait",
     "services:down": "docker compose down",
     "dev:web": "pnpm --filter @kokka/web dev",
-    "dev:worker": "pnpm --filter @kokka/worker dev"
+    "dev:worker": "pnpm --filter @kokka/worker dev",
+    "db:seed-admin": "pnpm --filter @kokka/db seed-admin"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
