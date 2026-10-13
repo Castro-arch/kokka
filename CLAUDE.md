@@ -41,6 +41,7 @@ build(infra): add worker dockerfile with ffmpeg
 ### Branches (trunk-based)
 - `main` sempre deployável e protegida: exige PR, CI verde (lint, typecheck, testes, commitlint), histórico linear e bloqueia force push. **Não exige aprovação de outra pessoa** (projeto solo).
 - Fluxo: Claude abre o PR com `gh pr create`, espera o CI e **para**; o José revisa e faz o merge (rebase and merge). Claude só faz merge se o José pedir explicitamente naquele PR.
+- Exceção — PRs de release: o PR gerado por `pnpm version-packages` (só versão, `CHANGELOG.md` e changesets consumidos) Claude pode mergear (rebase and merge) assim que o CI passar, e em seguida criar e enviar a tag (`pnpm release:tag` + `git push origin vX.Y.Z`). Qualquer PR com outra mudança continua exigindo pedido explícito.
 - Trabalho em branches curtas: `feat/<scope>-<descricao>`, `fix/...`, `chore/...`
 - Merge via PR com **rebase and merge** (squash desativado): cada commit atômico chega ao `main` como está, então todos precisam passar no commitlint. O título do PR não vira commit.
 - Rebase em vez de merge para atualizar a branch
