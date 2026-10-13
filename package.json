@@ -22,7 +22,9 @@
     "db:check": "pnpm --filter @kokka/db check",
     "db:migrate": "pnpm --filter @kokka/db migrate",
     "services:up": "docker compose up -d --wait",
-    "services:down": "docker compose down"
+    "services:down": "docker compose down",
+    "dev:web": "pnpm --filter @kokka/web dev",
+    "dev:worker": "pnpm --filter @kokka/worker dev"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
