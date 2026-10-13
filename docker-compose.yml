@@ -34,6 +34,64 @@ services:
       timeout: 3s
       retries: 10
 
+  # S3-compatible stand-in for Cloudflare R2. `weed mini` runs master, volume, filer and the
+  # S3 gateway in one process (dev only). Anonymous requests are denied.
+  s3:
+    image: chrislusf/seaweedfs:4.48
+    restart: unless-stopped
+    command:
+      - mini
+      - -dir=/data
+      - -s3.port=9000
+      - -webdav=false
+      - -admin.ui=false
+      - -s3.port.iceberg=0
+      - -s3.port.lance=0
+    environment:
+      # Registered as the admin S3 identity.
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-kokka}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-kokka-dev-secret}
+    ports:
+      - "9000:9000"
+    volumes:
+      - s3-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:9000/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Creates the private bucket and its CORS rule (browser uploads come from APP_URL), the same
+  # setup R2 gets in its dashboard. Idempotent: safe on every `docker compose up`.
+  s3-init:
+    image: amazon/aws-cli:2.37.13
+    depends_on:
+      s3:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-kokka}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-kokka-dev-secret}
+      AWS_DEFAULT_REGION: ${S3_REGION:-us-east-1}
+      AWS_ENDPOINT_URL: http://s3:9000
+      S3_BUCKET: ${S3_BUCKET:-kokka}
+      CORS_ORIGIN: ${APP_URL:-http://localhost:3000}
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        aws s3api head-bucket --bucket "$$S3_BUCKET" 2>/dev/null \
+          || aws s3api create-bucket --bucket "$$S3_BUCKET"
+        aws s3api put-bucket-cors --bucket "$$S3_BUCKET" --cors-configuration "{
+          \"CORSRules\": [{
+            \"AllowedOrigins\": [\"$$CORS_ORIGIN\"],
+            \"AllowedMethods\": [\"GET\", \"PUT\", \"HEAD\"],
+            \"AllowedHeaders\": [\"*\"],
+            \"ExposeHeaders\": [\"ETag\"],
+            \"MaxAgeSeconds\": 3600
+          }]
+        }"
+        echo "Bucket $$S3_BUCKET ready, CORS origin $$CORS_ORIGIN"
+
 volumes:
   postgres-data:
   redis-data:
+  s3-data:
