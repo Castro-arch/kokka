@@ -65,6 +65,7 @@ build(infra): add worker dockerfile with ffmpeg
 - **Uppy** (`@uppy/aws-s3` multipart) para upload resumível direto ao R2
 - **sharp** (imagens) e **ffmpeg** (vídeos) no worker
 - **Tailwind CSS** na interface
+- Pacotes de apoio aprovados: **server-only** (web: impede importar código de servidor no cliente) e **globals** (globais do Node na config do ESLint)
 - Deploy: **Docker Compose** na VPS via **Coolify** (serviços: web, worker, postgres, redis)
 
 ## Perfis de acesso
