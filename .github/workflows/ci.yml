@@ -49,9 +49,18 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U kokka -d kokka"
           --health-interval 5s --health-timeout 3s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 10
     env:
       HUSKY: "0"
       DATABASE_URL: postgres://kokka:kokka@localhost:5432/kokka
+      REDIS_URL: redis://localhost:6379
+      APP_URL: http://localhost:3000
+      BETTER_AUTH_SECRET: ci-only-secret-0123456789abcdefghijklmnop
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
