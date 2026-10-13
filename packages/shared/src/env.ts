@@ -8,6 +8,18 @@ export const baseEnvSchema = z.object({
 
 export type BaseEnv = z.infer<typeof baseEnvSchema>;
 
+/** S3 settings; each app that touches storage extends its own env schema with these. */
+export const storageEnvSchema = z.object({
+  S3_ENDPOINT: z.url({ protocol: /^https?$/ }),
+  S3_REGION: z.string().min(1).default("auto"),
+  S3_BUCKET: z.string().min(1),
+  S3_ACCESS_KEY_ID: z.string().min(1),
+  S3_SECRET_ACCESS_KEY: z.string().min(1),
+  S3_FORCE_PATH_STYLE: z.stringbool().default(true),
+});
+
+export type StorageEnv = z.infer<typeof storageEnvSchema>;
+
 /**
  * Validates environment variables against a schema and fails fast with a readable message,
  * so a misconfigured container never starts half-working.
