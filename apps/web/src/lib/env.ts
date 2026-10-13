@@ -1,10 +1,19 @@
 import "server-only";
-import { baseEnvSchema, parseEnv, type BaseEnv } from "@kokka/shared";
+import { baseEnvSchema, parseEnv } from "@kokka/shared";
+import { z } from "zod";
 
-let env: BaseEnv | undefined;
+export const webEnvSchema = baseEnvSchema.extend({
+  /** Public base URL (used for auth callbacks and the guest link in QR codes). */
+  APP_URL: z.url().transform((url) => url.replace(/\/+$/, "")),
+  BETTER_AUTH_SECRET: z.string().min(32, "use at least 32 characters"),
+});
+
+export type WebEnv = z.infer<typeof webEnvSchema>;
+
+let env: WebEnv | undefined;
 
 /** Parsed lazily so `next build` does not require runtime secrets. */
-export function getEnv(): BaseEnv {
-  env ??= parseEnv(baseEnvSchema);
+export function getEnv(): WebEnv {
+  env ??= parseEnv(webEnvSchema);
   return env;
 }
