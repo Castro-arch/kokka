@@ -1,13 +1,61 @@
 import "server-only";
-import { desc, events, type Event, type NewEvent } from "@kokka/db";
-import { generateSlug } from "@kokka/shared";
+import { and, desc, eq, events, sql, type Event, type NewEvent } from "@kokka/db";
+import {
+  expiresAtFor,
+  generateSlug,
+  previousAdminStatus,
+  type AdminTargetStatus,
+  type EventInput,
+} from "@kokka/shared";
+import { z } from "zod";
 import { getDb } from "./db";
 
 const SLUG_INDEX = "events_slug_idx";
 const SLUG_ATTEMPTS = 5;
 
+const eventId = z.uuid();
+
 export function listEvents(): Promise<Event[]> {
   return getDb().select().from(events).orderBy(desc(events.createdAt));
+}
+
+/** Undefined for unknown or malformed ids, so callers can 404 without a database error. */
+export async function getEvent(id: string): Promise<Event | undefined> {
+  if (!eventId.safeParse(id).success) return undefined;
+  const [event] = await getDb().select().from(events).where(eq(events.id, id));
+  return event;
+}
+
+/** Expired events are read-only. Returns the updated event, or undefined if nothing changed. */
+export async function updateEvent(id: string, input: EventInput): Promise<Event | undefined> {
+  if (!eventId.safeParse(id).success) return undefined;
+  const [event] = await getDb()
+    .update(events)
+    .set(input)
+    .where(and(eq(events.id, id), sql`${events.status} <> 'expired'`))
+    .returning();
+  return event;
+}
+
+/**
+ * Moves an event one step forward. The update only matches the expected previous status, so a
+ * stale page or a replayed request can never skip or reverse a step. Closing also starts the
+ * retention clock.
+ */
+export async function transitionEvent(
+  id: string,
+  to: AdminTargetStatus,
+  now = new Date(),
+): Promise<Event | undefined> {
+  if (!eventId.safeParse(id).success) return undefined;
+  const changes =
+    to === "closed" ? { status: to, closedAt: now, expiresAt: expiresAtFor(now) } : { status: to };
+  const [event] = await getDb()
+    .update(events)
+    .set(changes)
+    .where(and(eq(events.id, id), eq(events.status, previousAdminStatus(to))))
+    .returning();
+  return event;
 }
 
 export function createEvent(values: Omit<NewEvent, "id" | "slug">): Promise<Event> {

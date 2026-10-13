@@ -10,6 +10,8 @@ export interface FormState {
   values: Record<string, string>;
   /** First error per field; `form` holds errors that belong to no field. */
   errors: Partial<Record<string, string>>;
+  /** Confirmation for actions that succeed without leaving the page. */
+  message?: string;
 }
 
 export function formValues(form: FormData, names: readonly string[]): Record<string, string> {
