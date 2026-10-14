@@ -1,6 +1,6 @@
 import "server-only";
-import { and, eq, media, type Event, type Media } from "@kokka/db";
-import { storageKeys, uploadPartCount, uploadRequestSchema } from "@kokka/shared";
+import { and, eq, isNull, media, type Event, type Media } from "@kokka/db";
+import { storageKeys, uploadPartCount, uploadPartSize, uploadRequestSchema } from "@kokka/shared";
 import type { MultipartRequest } from "@kokka/shared/storage";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
@@ -112,8 +112,9 @@ function toMultipartRequest(item: Media, body: unknown): MultipartRequest {
   const { method, key, uploadId, partNumber } = parsed.data;
 
   if (!uploadId) {
-    // Single PUTs and object deletes are never signed: originals always go multipart.
-    if (method !== "POST") throw new UploadError(BAD_REQUEST, 400);
+    // Single PUTs and object deletes are never signed: originals always go multipart. A new
+    // multipart upload only until one is in use, so a guest cannot open many in parallel.
+    if (method !== "POST" || item.uploadId) throw new UploadError(BAD_REQUEST, 400);
     return { op: "create", key, contentType: item.originalMime };
   }
   switch (method) {
@@ -125,7 +126,13 @@ function toMultipartRequest(item: Media, body: unknown): MultipartRequest {
       ) {
         throw new UploadError(BAD_REQUEST, 400);
       }
-      return { op: "uploadPart", key, uploadId, partNumber };
+      return {
+        op: "uploadPart",
+        key,
+        uploadId,
+        partNumber,
+        contentLength: uploadPartSize(item.sizeBytes, partNumber),
+      };
     case "GET":
       return { op: "listParts", key, uploadId };
     case "POST":
@@ -136,21 +143,37 @@ function toMultipartRequest(item: Media, body: unknown): MultipartRequest {
 }
 
 /**
- * Presigns one request of this upload. Only this media's key, at most the parts its declared size
- * needs, and the original's own content type. The latest upload id is kept so an abandoned
- * upload can be aborted later.
+ * Ties the upload to the first multipart upload id it uses; any other id is refused. Atomic, so
+ * two concurrent requests cannot bind two different ids.
+ */
+async function bindUploadId(item: Media, uploadId: string): Promise<void> {
+  if (item.uploadId === uploadId) return;
+  if (!item.uploadId) {
+    const [bound] = await getDb()
+      .update(media)
+      .set({ uploadId })
+      .where(and(eq(media.id, item.id), eq(media.status, "uploading"), isNull(media.uploadId)))
+      .returning({ id: media.id });
+    if (bound) return;
+    const [current] = await getDb()
+      .select({ uploadId: media.uploadId })
+      .from(media)
+      .where(eq(media.id, item.id));
+    if (current?.uploadId === uploadId) return;
+  }
+  throw new UploadError(BAD_REQUEST, 400);
+}
+
+/**
+ * Presigns one request of this upload: only this media's key and its own content type, one
+ * multipart upload, and parts of exactly the sizes its declared size needs.
  */
 export async function signUploadRequest(
   item: Media,
   body: unknown,
 ): Promise<{ url: string; headers?: Record<string, string> }> {
   const request = toMultipartRequest(item, body);
-  if (request.op !== "create" && request.uploadId !== item.uploadId) {
-    await getDb()
-      .update(media)
-      .set({ uploadId: request.uploadId })
-      .where(and(eq(media.id, item.id), eq(media.status, "uploading")));
-  }
+  if (request.op !== "create") await bindUploadId(item, request.uploadId);
   const url = await getStorage().presignMultipartRequest(request);
   return request.op === "create"
     ? { url, headers: { "Content-Type": request.contentType } }

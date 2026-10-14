@@ -140,25 +140,47 @@ describe.runIf(enabled)("guest upload flow", { timeout: 30_000 }, async () => {
       await expect(signUploadRequest(item, request)).rejects.toMatchObject({ status: 400 });
     }
 
-    // A signed request records the upload id, so the upload can be aborted later.
+    // The first signed upload id is bound to the media: no second multipart upload, no other id.
     await signUploadRequest(item, { method: "GET", key: start.key, uploadId: "up-1" });
     const recorded = await getOwnUpload(event, guest.deviceId, start.mediaId);
     expect(recorded.uploadId).toBe("up-1");
+    await expect(
+      signUploadRequest(recorded, { method: "POST", key: start.key }),
+    ).rejects.toMatchObject({ status: 400 });
+    await expect(
+      signUploadRequest(recorded, { method: "GET", key: start.key, uploadId: "up-2" }),
+    ).rejects.toMatchObject({ status: 400 });
+    await expect(
+      signUploadRequest(item, { method: "GET", key: start.key, uploadId: "up-2" }),
+    ).rejects.toMatchObject({ status: 400 });
+
     await abortUpload(recorded);
     expect(await getDb().select().from(media).where(eq(media.id, start.mediaId))).toEqual([]);
   });
 
-  it("fails an upload whose size differs from the declared one", async () => {
+  it("lets storage refuse parts of another size than the declared one", async () => {
     const event = await activeEvent();
     const start = await startUpload(event, guest, { type: "image/png", size: 100 });
     const item = await getOwnUpload(event, guest.deviceId, start.mediaId);
     await expect(completeUpload(event, item)).rejects.toMatchObject({ status: 409 });
 
-    await uploadLikeUppy(item, new Uint8Array(50));
-    await expect(completeUpload(event, item)).rejects.toMatchObject({ status: 422 });
-    const [row] = await getDb().select().from(media).where(eq(media.id, start.mediaId));
-    expect(row?.status).toBe("failed");
-    expect(await getStorage().headObject(start.key)).toBeUndefined();
+    const create = await signUploadRequest(item, { method: "POST", key: start.key });
+    const created = await fetch(create.url, { method: "POST", headers: create.headers });
+    const uploadId = xmlValue(await created.text(), "UploadId");
+    const part = await signUploadRequest(item, {
+      method: "PUT",
+      key: start.key,
+      uploadId,
+      partNumber: 1,
+    });
+    for (const size of [50, 5000]) {
+      const refused = await fetch(part.url, { method: "PUT", body: new Uint8Array(size) });
+      expect(refused.status).toBe(403);
+      await refused.text();
+    }
+    // Nothing was stored, so the upload cannot be completed either.
+    await expect(completeUpload(event, item)).rejects.toMatchObject({ status: 409 });
+    await abortUpload(await getOwnUpload(event, guest.deviceId, start.mediaId));
   });
 
   it("lets an upload started before closing finish, but not new ones", async () => {
