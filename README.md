@@ -57,6 +57,27 @@ Use managed services for Postgres and Redis and a native SeaweedFS binary for st
 
 Then `pnpm s3:init` (creates the bucket and its CORS rule for `APP_URL`, like the compose `s3-init` service) and continue from `pnpm db:migrate`. With a dev R2 bucket instead, set `S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com` and `S3_REGION=auto`, and create the bucket and its CORS rule in the Cloudflare dashboard (an object-scoped R2 token cannot change bucket settings). Run the integration tests against these services with `set -a; source .env; set +a; pnpm test`.
 
+### Storage CORS (Cloudflare R2)
+
+Guest uploads go from the browser straight to the bucket, so the bucket needs a CORS rule. Locally `pnpm s3:init` (or the compose `s3-init` service) applies it; for R2, paste it in **R2 → bucket → Settings → CORS policy**, one origin per environment that serves the app (production domain, staging, a LAN address while testing on a phone):
+
+```json
+[
+  {
+    "AllowedOrigins": ["https://kokka.example.com"],
+    "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
+    "AllowedHeaders": ["*"],
+    "ExposeHeaders": ["ETag"],
+    "MaxAgeSeconds": 3600
+  }
+]
+```
+
+- `PUT` uploads each part; `POST` creates and completes the multipart upload; `DELETE` aborts it; `GET`/`HEAD` read through signed URLs.
+- `ExposeHeaders: ["ETag"]` is required: the uploader reads each part's `ETag` from the response to complete the upload. Without it every upload fails at the end.
+- `AllowedHeaders: ["*"]` covers the signed `Content-Type` of the multipart creation.
+- Origins are exact (scheme, host and port, no trailing slash) and must match `APP_URL`.
+
 ## How it works
 
 ```mermaid
