@@ -39,7 +39,7 @@ pnpm dev:web
 
 Open `http://localhost:3000/admin` and sign in with the credentials from your `.env`.
 
-**Testing the QR code on a phone:** set `APP_URL` to your machine's LAN address (e.g. `http://192.168.0.10:3000`), run the dev server bound to the network, and connect the phone to the same Wi-Fi.
+**Testing the QR code on a phone:** set `APP_URL` to your machine's LAN address (e.g. `http://192.168.0.10:3000`), point `S3_ENDPOINT` at the same address (e.g. `http://192.168.0.10:9000`), run `pnpm services:up` again so the storage CORS allows that origin, start `pnpm dev:web:lan`, and connect the phone to the same Wi-Fi.
 
 ## How it works
 
