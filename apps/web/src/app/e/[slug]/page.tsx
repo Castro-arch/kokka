@@ -12,7 +12,7 @@ import { decodeCursor, getGuestEvent, listGallery, listOwnPending } from "@/lib/
 import { getStorage } from "@/lib/storage";
 import { GalleryLive } from "./gallery-live";
 import type { GalleryTileItem } from "./gallery-tile";
-import { CameraIcon, VideoIcon } from "./icons";
+import { OwnPending } from "./own-pending";
 import { GuestUploader } from "./guest-uploader";
 
 export async function generateMetadata({ params }: PageProps<"/e/[slug]">): Promise<Metadata> {
@@ -100,32 +100,7 @@ export default async function GuestEventPage({ params, searchParams }: PageProps
         </p>
       )}
 
-      {ownPending.length > 0 && (
-        <section className="mt-6 px-4" aria-labelledby="own-pending">
-          <h2 id="own-pending" className="text-sm font-semibold text-stone-700">
-            Enviados por você — processando
-          </h2>
-          <ul className="mt-2 flex gap-2 overflow-x-auto pb-1">
-            {ownPending.map((item) => (
-              <li
-                key={item.id}
-                className="flex h-20 w-20 shrink-0 flex-col items-center justify-center rounded-lg bg-stone-100 text-center text-xs text-stone-600"
-              >
-                {item.kind === "video" ? (
-                  <VideoIcon className="mb-1 h-6 w-6" />
-                ) : (
-                  <CameraIcon className="mb-1 h-6 w-6" />
-                )}
-                {item.status === "failed"
-                  ? "Falhou"
-                  : item.status === "uploading"
-                    ? "Enviando"
-                    : "Processando"}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <OwnPending items={ownPending.map(({ id, kind, status }) => ({ id, kind, status }))} />
 
       <section className="mt-6 px-4" aria-labelledby="gallery">
         <h2 id="gallery" className="sr-only">
