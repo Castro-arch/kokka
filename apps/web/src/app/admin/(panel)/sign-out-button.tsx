@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 
-export function SignOutButton() {
+export function SignOutButton({ className = "btn-ghost" }: { className?: string }) {
   const router = useRouter();
 
   async function signOut() {
@@ -13,7 +13,7 @@ export function SignOutButton() {
   }
 
   return (
-    <button type="button" onClick={() => void signOut()} className="btn-ghost">
+    <button type="button" onClick={() => void signOut()} className={className}>
       Sair
     </button>
   );
