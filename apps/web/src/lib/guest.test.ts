@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it } from "vitest";
-import { decodeCursor, downloadName, encodeCursor } from "./guest";
+import { decodeCursor, downloadName, encodeCursor, eventInitials } from "./guest";
 
 describe("gallery cursor", () => {
   it("round-trips the last item shown", () => {
@@ -12,6 +12,15 @@ describe("gallery cursor", () => {
     expect(decodeCursor(undefined)).toBeUndefined();
     expect(decodeCursor("abc")).toBeUndefined();
     expect(decodeCursor(`1791989060278_${"x".repeat(36)}`)).toBeUndefined();
+  });
+});
+
+describe("eventInitials", () => {
+  it("keeps couples as A&P and shortens other names", () => {
+    expect(eventInitials("Ana & Pedro")).toBe("A&P");
+    expect(eventInitials("Bodas de Prata")).toBe("BP");
+    expect(eventInitials("15 anos da Júlia")).toBe("AJ");
+    expect(eventInitials("Kokka")).toBe("K");
   });
 });
 
@@ -27,7 +36,7 @@ describe("downloadName", () => {
 // Runs in CI against a migrated Postgres; skipped locally unless the env is set.
 describe.runIf(Boolean(process.env.DATABASE_URL))("guest queries", async () => {
   const { eq, events, media } = await import("@kokka/db");
-  const { getGuestEvent, listGallery, listOwnPending } = await import("./guest");
+  const { countGallery, getGuestEvent, listGallery, listOwnPending } = await import("./guest");
   const { createEvent, transitionEvent } = await import("./events");
   const { getDb } = await import("./db");
 
@@ -98,6 +107,14 @@ describe.runIf(Boolean(process.env.DATABASE_URL))("guest queries", async () => {
     );
     expect(last.items.map((item) => item.createdAt.getUTCMinutes())).toEqual([0]);
     expect(last.next).toBeUndefined();
+  });
+
+  it("counts the ready photos and videos", async () => {
+    const event = await activeEvent();
+    await addMedia(event.id, "ready", 1);
+    await addMedia(event.id, "ready", 2);
+    await addMedia(event.id, "processing", 3);
+    expect(await countGallery(event.id)).toEqual({ images: 2, videos: 0 });
   });
 
   it("shows a device only its own uploads that are not ready yet", async () => {

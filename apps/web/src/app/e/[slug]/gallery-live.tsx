@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { GalleryTile, type GalleryTileItem } from "./gallery-tile";
+import { GalleryTile, mosaicSpan, type GalleryTileItem } from "./gallery-tile";
 
 interface GalleryLiveProps {
   slug: string;
@@ -12,11 +12,13 @@ interface GalleryLiveProps {
 }
 
 /**
- * The gallery grid. Items rendered by the server come in as props; while the page is open, newly
- * ready items appear on top and hidden or deleted ones disappear, through server-sent events.
+ * The gallery mosaic. Items rendered by the server come in as props; while the page is open, newly
+ * ready items appear on top marked "Nova" and hidden or deleted ones disappear, through
+ * server-sent events.
  */
 export function GalleryLive({ slug, initial, live, emptyMessage }: GalleryLiveProps) {
   const [items, setItems] = useState(initial);
+  const [fresh, setFresh] = useState<ReadonlySet<string>>(new Set());
 
   useEffect(() => {
     if (!live) return;
@@ -26,6 +28,7 @@ export function GalleryLive({ slug, initial, live, emptyMessage }: GalleryLivePr
       setItems((current) =>
         current.some((existing) => existing.id === item.id) ? current : [item, ...current],
       );
+      setFresh((current) => new Set(current).add(item.id));
     });
     source.addEventListener("removed", (event) => {
       const { id } = JSON.parse((event as MessageEvent<string>).data) as { id: string };
@@ -38,15 +41,25 @@ export function GalleryLive({ slug, initial, live, emptyMessage }: GalleryLivePr
 
   if (items.length === 0) {
     return (
-      <p className="py-10 text-center text-stone-600" data-gallery-empty>
-        {emptyMessage}
-      </p>
+      <div
+        className="block-card flex flex-col items-center gap-2 p-6 text-center"
+        data-gallery-empty
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element -- static brand image */}
+        <img src="/brand/mascot.png" alt="" className="h-16 w-20 object-contain" />
+        <p className="font-extrabold text-ink-soft">{emptyMessage}</p>
+      </div>
     );
   }
   return (
-    <ul className="grid grid-cols-3 gap-1.5" data-gallery>
-      {items.map((item) => (
-        <GalleryTile key={item.id} item={item} />
+    <ul className="grid grid-flow-dense auto-rows-[104px] grid-cols-3 gap-2" data-gallery>
+      {items.map((item, index) => (
+        <GalleryTile
+          key={item.id}
+          item={item}
+          span={mosaicSpan(index)}
+          isNew={fresh.has(item.id)}
+        />
       ))}
     </ul>
   );

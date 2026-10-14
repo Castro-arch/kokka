@@ -103,3 +103,13 @@ export function PlusIcon(props: SVGProps<SVGSVGElement>) {
     </Icon>
   );
 }
+
+export function DownloadIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="M12 4v11" />
+      <path d="m6.5 9.5 5.5 5.5 5.5-5.5" />
+      <path d="M5 20h14" />
+    </Icon>
+  );
+}
