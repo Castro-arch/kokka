@@ -3,3 +3,5 @@ packages/db/migrations/
 .next/
 coverage/
 CLAUDE.md
+# Design mockups exported as is from the canvas tool
+docs/design/
