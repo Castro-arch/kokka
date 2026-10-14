@@ -31,6 +31,10 @@ interface Uploads {
   items: UploadItem[];
   send: (files: File[]) => void;
   retry: (item: UploadItem) => Promise<void>;
+  /** A batch just finished and the guest has not seen the success screen for it yet. */
+  celebrate: boolean;
+  /** Hides the success screen until the next batch finishes. */
+  dismissCelebration: () => void;
 }
 
 const UploadsContext = createContext<Uploads | null>(null);
@@ -68,7 +72,13 @@ export function UploadProvider({
   const counts = useRef({ image: 0, video: 0 });
   const previewUrls = useRef<string[]>([]);
   const [items, setItems] = useState<UploadItem[]>([]);
+  const [celebrated, setCelebrated] = useState<ReadonlySet<string>>(new Set());
   const sending = items.some((item) => item.state === "sending");
+  const celebrate =
+    !sending && items.some((item) => item.state === "done" && !celebrated.has(item.id));
+  const dismissCelebration = () => {
+    setCelebrated(new Set(items.filter((item) => item.state === "done").map((item) => item.id)));
+  };
 
   const update = (id: string, patch: Partial<UploadItem>) => {
     setItems((current) => current.map((item) => (item.id === id ? { ...item, ...patch } : item)));
@@ -211,7 +221,11 @@ export function UploadProvider({
     for (const file of files) void sendOne(file);
   };
 
-  return <UploadsContext value={{ items, send, retry }}>{children}</UploadsContext>;
+  return (
+    <UploadsContext value={{ items, send, retry, celebrate, dismissCelebration }}>
+      {children}
+    </UploadsContext>
+  );
 }
 
 /** Some phones report no type for videos (MOV); the extension tells. */
