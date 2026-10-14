@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { GridIcon, HeartIcon, UploadIcon } from "./icons";
+import { GridIcon, HeartIcon, UploadIcon } from "@/components/icons";
 
 /** Bottom navigation of the guest area; links, so it works before JavaScript loads. */
 export function GuestNav({ slug }: { slug: string }) {

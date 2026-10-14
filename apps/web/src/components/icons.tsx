@@ -1,7 +1,7 @@
 import type { SVGProps } from "react";
 
 /**
- * Inline line icons for the guest page (24×24 grid, 2px stroke, current text color), so they
+ * Inline line icons of the app (24×24 grid, 2px stroke, current text color), so they
  * follow the event theme and render the same on every phone, unlike emoji.
  */
 function Icon({ children, ...props }: SVGProps<SVGSVGElement>) {

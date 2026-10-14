@@ -1,5 +1,5 @@
 import type { MediaKind } from "@kokka/shared";
-import { DownloadIcon, PlayIcon } from "./icons";
+import { DownloadIcon, PlayIcon } from "@/components/icons";
 
 export interface GalleryTileItem {
   id: string;

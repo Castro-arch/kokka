@@ -1,7 +1,7 @@
 "use client";
 
 import type { ChangeEvent, CSSProperties } from "react";
-import { CameraIcon, CheckIcon, ImagesIcon, VideoIcon } from "./icons";
+import { CameraIcon, CheckIcon, ImagesIcon, VideoIcon } from "@/components/icons";
 import { LocalPreview } from "./local-preview";
 import { useUploads } from "./upload-context";
 
