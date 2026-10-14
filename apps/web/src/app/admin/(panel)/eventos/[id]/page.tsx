@@ -12,6 +12,7 @@ import {
 } from "@/lib/event-display";
 import { getEvent } from "@/lib/events";
 import { FONT_CLASS_NAMES } from "@/lib/fonts";
+import { guestUrl, qrSvg } from "@/lib/qr";
 import { getStorage } from "@/lib/storage";
 import { transitionEventAction, updateEventAction, updateThemeAction } from "../actions";
 import { EventForm } from "../event-form";
@@ -31,6 +32,8 @@ export default async function EventPage({ params }: PageProps<"/admin/eventos/[i
   const coverUrl = event.theme.coverKey
     ? await getStorage().signedGetUrl(event.theme.coverKey)
     : null;
+  const link = guestUrl(event.slug);
+  const qr = await qrSvg(link);
 
   return (
     <div className="space-y-8">
@@ -46,7 +49,6 @@ export default async function EventPage({ params }: PageProps<"/admin/eventos/[i
             {STATUS_LABELS[event.status]}
           </span>
         </div>
-        <p className="text-sm text-stone-600">Link dos convidados: /e/{event.slug}</p>
       </div>
 
       <Section title="Status">
@@ -63,6 +65,25 @@ export default async function EventPage({ params }: PageProps<"/admin/eventos/[i
           {next && (
             <StatusControl next={next} action={transitionEventAction.bind(null, event.id, next)} />
           )}
+        </div>
+      </Section>
+
+      <Section title="QR Code">
+        <div className="flex flex-col items-center gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-stone-200 sm:flex-row">
+          {/* SVG generated on the server by the qrcode library from our own URL. */}
+          <div
+            className="size-40 shrink-0 [&>svg]:size-full"
+            dangerouslySetInnerHTML={{ __html: qr }}
+          />
+          <div className="space-y-3 text-center sm:text-left">
+            <p className="text-sm text-stone-600">
+              Os convidados leem este código e caem direto na galeria do evento:
+            </p>
+            <p className="font-mono text-sm break-all">{link}</p>
+            <a href={`/api/admin/eventos/${event.id}/qr`} download className="btn-secondary">
+              Baixar QR (PNG)
+            </a>
+          </div>
         </div>
       </Section>
 
