@@ -24,6 +24,7 @@
     "services:up": "docker compose up -d --wait",
     "services:down": "docker compose down",
     "dev:web": "pnpm --filter @kokka/web dev",
+    "dev:web:lan": "pnpm --filter @kokka/web dev:lan",
     "dev:worker": "pnpm --filter @kokka/worker dev",
     "db:seed-admin": "pnpm --filter @kokka/db seed-admin"
   },

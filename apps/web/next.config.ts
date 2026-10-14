@@ -1,7 +1,13 @@
 import { fileURLToPath } from "node:url";
 import type { NextConfig } from "next";
 
+// `next dev` only serves its scripts and HMR to localhost; `pnpm dev:web:lan` with APP_URL set to
+// the machine's LAN address lets a phone on the same Wi-Fi load the app. Ignored outside dev.
+const appUrl = process.env.APP_URL;
+const lanHost = appUrl && URL.canParse(appUrl) ? new URL(appUrl).hostname : undefined;
+
 const nextConfig: NextConfig = {
+  allowedDevOrigins: lanHost ? [lanHost] : [],
   output: "standalone",
   // Trace files from the monorepo root so the standalone build includes workspace packages.
   outputFileTracingRoot: fileURLToPath(new URL("../..", import.meta.url)),
