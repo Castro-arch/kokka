@@ -14,8 +14,10 @@ FROM base AS build
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm fetch
 COPY . .
+# The cache mount is not saved with the layer cache: on a fresh CI runner the fetch layer can be
+# CACHED while the store is empty, so install may still download instead of running --offline.
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --offline --frozen-lockfile
+    pnpm install --prefer-offline --frozen-lockfile
 RUN pnpm --filter @kokka/web build
 
 FROM node:22-alpine AS runtime
