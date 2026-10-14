@@ -13,7 +13,7 @@ import { getStorage } from "@/lib/storage";
 import { GalleryLive } from "../gallery-live";
 import type { GalleryTileItem } from "../gallery-tile";
 import { firstParam, guestMetadata, loadGuestPage } from "../guest-page";
-import { PlusIcon } from "../icons";
+import { PlusIcon } from "@/components/icons";
 
 export async function generateMetadata({
   params,

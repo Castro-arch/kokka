@@ -2,7 +2,7 @@
 
 import type { MediaKind } from "@kokka/shared";
 import { useState } from "react";
-import { CameraIcon, VideoIcon } from "./icons";
+import { CameraIcon, VideoIcon } from "@/components/icons";
 
 /**
  * Thumbnail of a file still on the phone (an object URL), before the server has one. Falls back

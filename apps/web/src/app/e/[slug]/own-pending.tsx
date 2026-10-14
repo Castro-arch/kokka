@@ -1,7 +1,7 @@
 "use client";
 
 import type { MediaKind, MediaStatus } from "@kokka/shared";
-import { CheckIcon } from "./icons";
+import { CheckIcon } from "@/components/icons";
 import { LocalPreview } from "./local-preview";
 import { useLocalPreviews } from "./local-previews";
 
