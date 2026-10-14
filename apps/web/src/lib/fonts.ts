@@ -41,6 +41,14 @@ const greatVibes = localFont({
   display: "swap",
 });
 
+/** Interface font of the app (docs/design): variable, used at 600–900. */
+export const nunito = localFont({
+  src: "../../assets/fonts/nunito/Nunito-Variable.ttf",
+  weight: "200 1000",
+  variable: "--font-nunito",
+  display: "swap",
+});
+
 /** Class names that apply each theme font. */
 export const FONT_CLASS_NAMES: Record<FontKey, string> = {
   inter: inter.className,

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { nunito } from "@/lib/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,8 +15,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="pt-BR">
-      <body className="min-h-dvh bg-stone-50 text-stone-900 antialiased">{children}</body>
+    <html lang="pt-BR" className={nunito.variable}>
+      <body className="min-h-dvh bg-block font-sans font-semibold text-ink antialiased">
+        {children}
+      </body>
     </html>
   );
 }
