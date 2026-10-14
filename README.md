@@ -10,7 +10,7 @@
 **Guests scan the QR code on their table, share photos and videos in original quality, and watch them play in a loop on the venue screen.**
 
 [![CI](https://github.com/Castro-arch/kokka/actions/workflows/ci.yml/badge.svg)](https://github.com/Castro-arch/kokka/actions/workflows/ci.yml)
-![Version](https://img.shields.io/badge/version-0.2.0-E8173A)
+![Version](https://img.shields.io/badge/version-0.2.0-FC123A)
 ![Node](https://img.shields.io/badge/node-22%20LTS-339933?logo=node.js&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Router-000000?logo=nextdotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
