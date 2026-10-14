@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { CameraIcon, CheckIcon, ImagesIcon, VideoIcon } from "./icons";
 import { LocalPreview } from "./local-preview";
+import { setLocalPreview } from "./local-previews";
 
 interface UploadMeta extends Meta {
   mediaId: string;
@@ -173,6 +174,7 @@ export function GuestUploader({
     const { mediaId, key } = (await response.json()) as { mediaId: string; key: string };
     // From here on the item is tracked by its media id, which Uppy events carry.
     update(localId, { id: mediaId });
+    setLocalPreview(mediaId, previewUrl);
 
     try {
       const uppy = await getUppy();
