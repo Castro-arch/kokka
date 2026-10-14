@@ -2,6 +2,7 @@
 
 import { FONT_OPTIONS, type FontKey } from "@kokka/shared";
 import { startTransition, useActionState, useState } from "react";
+import { readableTextColor } from "@/lib/color";
 import type { FormState } from "@/lib/form";
 
 interface ThemeFormProps {
@@ -31,8 +32,8 @@ export function ThemeForm({ action, initial, fontClassNames, preview }: ThemeFor
       className="space-y-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-stone-200"
     >
       <div
-        className="rounded-xl px-6 py-8 text-center text-white"
-        style={{ backgroundColor: color }}
+        className="rounded-xl px-6 py-8 text-center"
+        style={{ backgroundColor: color, color: readableTextColor(color) }}
       >
         <p className={`text-3xl font-bold ${fontClassNames[font]}`}>{preview.name}</p>
         {preview.subtitle && <p className={`mt-1 ${fontClassNames[font]}`}>{preview.subtitle}</p>}

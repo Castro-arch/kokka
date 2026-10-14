@@ -80,9 +80,14 @@ export default async function EventPage({ params }: PageProps<"/admin/eventos/[i
               Os convidados leem este código e caem direto na galeria do evento:
             </p>
             <p className="font-mono text-sm break-all">{link}</p>
-            <a href={`/api/admin/eventos/${event.id}/qr`} download className="btn-secondary">
-              Baixar QR (PNG)
-            </a>
+            <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
+              <Link href={`/admin/eventos/${event.id}/arte`} className="btn-primary">
+                Arte para impressão
+              </Link>
+              <a href={`/api/admin/eventos/${event.id}/qr`} download className="btn-secondary">
+                Baixar QR (PNG)
+              </a>
+            </div>
           </div>
         </div>
       </Section>
