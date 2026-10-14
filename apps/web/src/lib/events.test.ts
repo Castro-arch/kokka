@@ -37,7 +37,8 @@ describe("withUniqueSlug", () => {
 // Runs in CI against a migrated Postgres; skipped locally unless the env is set.
 describe.runIf(Boolean(process.env.DATABASE_URL))("event transitions", async () => {
   const { eq, events } = await import("@kokka/db");
-  const { createEvent, getEvent, transitionEvent, updateEvent } = await import("./events");
+  const { createEvent, getEvent, mergeEventTheme, transitionEvent, updateEvent } =
+    await import("./events");
   const { getDb } = await import("./db");
 
   const created: string[] = [];
@@ -78,6 +79,17 @@ describe.runIf(Boolean(process.env.DATABASE_URL))("event transitions", async () 
     await getDb().update(events).set({ status: "expired" }).where(eq(events.id, id));
     const input = { name: "Outro", subtitle: null, startsAt: new Date(), endsAt: new Date() };
     expect(await updateEvent(id, input)).toBeUndefined();
+  });
+
+  it("merges theme changes without dropping other keys", async () => {
+    const { id } = await newEvent();
+    await mergeEventTheme(id, { coverKey: "events/x/cover/c.webp" });
+    const event = await mergeEventTheme(id, { primaryColor: "#112233", font: "playfair" });
+    expect(event?.theme).toEqual({
+      coverKey: "events/x/cover/c.webp",
+      primaryColor: "#112233",
+      font: "playfair",
+    });
   });
 
   it("treats malformed ids as missing", async () => {

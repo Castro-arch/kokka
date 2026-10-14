@@ -4,11 +4,18 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { requireAdmin } from "@/lib/auth-guard";
-import { formatDateTime, STATUS_BADGE_CLASSES, STATUS_LABELS } from "@/lib/event-display";
+import {
+  formatDateTime,
+  resolveTheme,
+  STATUS_BADGE_CLASSES,
+  STATUS_LABELS,
+} from "@/lib/event-display";
 import { getEvent } from "@/lib/events";
-import { transitionEventAction, updateEventAction } from "../actions";
+import { FONT_CLASS_NAMES } from "@/lib/fonts";
+import { transitionEventAction, updateEventAction, updateThemeAction } from "../actions";
 import { EventForm } from "../event-form";
 import { StatusControl } from "./status-control";
+import { ThemeForm } from "./theme-form";
 
 export const metadata: Metadata = { title: "Evento · Kokka" };
 
@@ -65,6 +72,17 @@ export default async function EventPage({ params }: PageProps<"/admin/eventos/[i
               endsAt: event.endsAt ? toLocalDateTimeInput(event.endsAt) : "",
             }}
             submitLabel="Salvar alterações"
+          />
+        </Section>
+      )}
+
+      {event.status !== "expired" && (
+        <Section title="Personalização">
+          <ThemeForm
+            action={updateThemeAction.bind(null, event.id)}
+            initial={resolveTheme(event.theme)}
+            fontClassNames={FONT_CLASS_NAMES}
+            preview={{ name: event.name, subtitle: event.subtitle }}
           />
         </Section>
       )}
