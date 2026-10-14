@@ -1,4 +1,5 @@
 import type { Media } from "@kokka/db";
+import { MAX_VIDEO_DURATION_MS, UPLOAD_PART_SIZE_BYTES } from "@kokka/shared";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
@@ -10,6 +11,7 @@ import { FONT_CLASS_NAMES } from "@/lib/fonts";
 import { decodeCursor, getGuestEvent, listGallery, listOwnPending } from "@/lib/guest";
 import { getStorage } from "@/lib/storage";
 import { GalleryTile, type GalleryTileItem } from "./gallery-tile";
+import { GuestUploader } from "./guest-uploader";
 
 export async function generateMetadata({ params }: PageProps<"/e/[slug]">): Promise<Metadata> {
   const event = await getGuestEvent((await params).slug);
@@ -78,6 +80,16 @@ export default async function GuestEventPage({ params, searchParams }: PageProps
   return (
     <main className="mx-auto min-h-dvh max-w-2xl bg-white pb-12">
       {header}
+
+      {event.status === "active" && (
+        <GuestUploader
+          slug={event.slug}
+          partSizeBytes={UPLOAD_PART_SIZE_BYTES}
+          maxVideoDurationMs={MAX_VIDEO_DURATION_MS}
+          color={theme.primaryColor}
+          onColor={onTheme}
+        />
+      )}
 
       {event.status === "closed" && (
         <p className="mx-4 mt-4 rounded-lg bg-stone-100 px-4 py-3 text-sm text-stone-700">
