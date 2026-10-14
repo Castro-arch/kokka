@@ -25,8 +25,14 @@ export function deviceCookie(id: string, secure: boolean) {
   };
 }
 
-/** Client IP as seen by the reverse proxy (Coolify/Traefik), for rate limiting only. */
+/**
+ * Client IP as seen by the reverse proxy (Coolify/Traefik), for rate limiting only. Clients can
+ * send their own X-Forwarded-For, so only what the proxy sets counts: X-Real-Ip, else the last
+ * X-Forwarded-For hop (the one the proxy appended).
+ */
 export function clientIp(headers: Headers): string {
-  const forwarded = headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return forwarded || headers.get("x-real-ip")?.trim() || "unknown";
+  const realIp = headers.get("x-real-ip")?.trim();
+  if (realIp) return realIp;
+  const forwarded = headers.get("x-forwarded-for")?.split(",").at(-1)?.trim();
+  return forwarded || "unknown";
 }
