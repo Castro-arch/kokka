@@ -12,7 +12,10 @@ export function proxy(request: NextRequest) {
 function guest(request: NextRequest) {
   const response = NextResponse.next();
   if (!isDeviceId(request.cookies.get(DEVICE_COOKIE)?.value)) {
-    const secure = request.nextUrl.protocol === "https:";
+    // TLS ends at the reverse proxy, so the app itself is reached over http in production.
+    const secure =
+      request.nextUrl.protocol === "https:" ||
+      request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() === "https";
     response.cookies.set(deviceCookie(crypto.randomUUID(), secure));
   }
   return response;

@@ -15,6 +15,15 @@ describe("guest device cookie", () => {
     expect(cookie).toMatchObject({ httpOnly: true, sameSite: "lax", path: "/" });
   });
 
+  it("is secure behind the https proxy and not on plain local http", () => {
+    const proxied = new NextRequest("http://web:3000/e/abc234", {
+      headers: { "x-forwarded-proto": "https" },
+    });
+    expect(proxy(proxied).cookies.get(DEVICE_COOKIE)?.secure).toBe(true);
+    const local = proxy(new NextRequest("http://localhost:3000/e/abc234"));
+    expect(local.cookies.get(DEVICE_COOKIE)?.secure).toBeFalsy();
+  });
+
   it("is kept when the guest already has one", () => {
     const id = randomUUID();
     const request = new NextRequest("http://localhost:3000/api/e/abc234/uploads", {
