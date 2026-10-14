@@ -12,6 +12,7 @@ import { decodeCursor, getGuestEvent, listGallery, listOwnPending } from "@/lib/
 import { getStorage } from "@/lib/storage";
 import { GalleryLive } from "./gallery-live";
 import type { GalleryTileItem } from "./gallery-tile";
+import { CameraIcon, VideoIcon } from "./icons";
 import { GuestUploader } from "./guest-uploader";
 
 export async function generateMetadata({ params }: PageProps<"/e/[slug]">): Promise<Metadata> {
@@ -110,9 +111,11 @@ export default async function GuestEventPage({ params, searchParams }: PageProps
                 key={item.id}
                 className="flex h-20 w-20 shrink-0 flex-col items-center justify-center rounded-lg bg-stone-100 text-center text-xs text-stone-600"
               >
-                <span aria-hidden className="text-xl">
-                  {item.kind === "video" ? "🎬" : "📷"}
-                </span>
+                {item.kind === "video" ? (
+                  <VideoIcon className="mb-1 h-6 w-6" />
+                ) : (
+                  <CameraIcon className="mb-1 h-6 w-6" />
+                )}
                 {item.status === "failed"
                   ? "Falhou"
                   : item.status === "uploading"
