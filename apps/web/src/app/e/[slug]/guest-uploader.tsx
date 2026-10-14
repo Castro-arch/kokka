@@ -5,6 +5,7 @@ import type { Meta, Uppy } from "@uppy/core";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { CameraIcon, CheckIcon, ImagesIcon, VideoIcon } from "./icons";
+import { LocalPreview } from "./local-preview";
 
 interface UploadMeta extends Meta {
   mediaId: string;
@@ -15,7 +16,11 @@ type GuestUppy = Uppy<UploadMeta, AwsBody>;
 
 interface Item {
   id: string;
-  name: string;
+  kind: "image" | "video";
+  /** "Foto 1", "Vídeo 2"…: file names can be long or personal, so they are not shown. */
+  label: string;
+  /** Object URL of the file on the phone, for the thumbnail. */
+  previewUrl: string;
   /** 0–100 while sending. */
   percent: number;
   state: "sending" | "done" | "error";
@@ -48,6 +53,8 @@ export function GuestUploader({
   // List key until the server returns the media id. Not crypto.randomUUID: it only exists in
   // secure contexts (missing on plain-http LAN testing) and on Safari 15.4+.
   const localIds = useRef(0);
+  const counts = useRef({ image: 0, video: 0 });
+  const previewUrls = useRef<string[]>([]);
   const [items, setItems] = useState<Item[]>([]);
   const sending = items.some((item) => item.state === "sending");
 
@@ -68,10 +75,12 @@ export function GuestUploader({
   }, [sending]);
 
   useEffect(
-    () => () =>
+    () => () => {
       void uppyRef.current?.then((uppy) => {
         uppy.destroy();
-      }),
+      });
+      for (const url of previewUrls.current) URL.revokeObjectURL(url);
+    },
     [],
   );
 
@@ -136,12 +145,17 @@ export function GuestUploader({
   async function send(file: File) {
     localIds.current += 1;
     const localId = `local-${String(localIds.current)}`;
+    const kind = isVideo(file) ? "video" : "image";
+    counts.current[kind] += 1;
+    const label = `${kind === "video" ? "Vídeo" : "Foto"} ${String(counts.current[kind])}`;
+    const previewUrl = URL.createObjectURL(file);
+    previewUrls.current.push(previewUrl);
     setItems((current) => [
-      { id: localId, name: file.name, percent: 0, state: "sending" },
+      { id: localId, kind, label, previewUrl, percent: 0, state: "sending" },
       ...current,
     ]);
 
-    const durationMs = file.type.startsWith("video/") ? await videoDurationMs(file) : undefined;
+    const durationMs = kind === "video" ? await videoDurationMs(file) : undefined;
     if (durationMs !== undefined && durationMs > maxVideoDurationMs) {
       update(localId, { state: "error", message: "Vídeos podem ter até 3 minutos." });
       return;
@@ -242,47 +256,62 @@ export function GuestUploader({
       {items.length > 0 && (
         <ul className="mt-3 space-y-2" aria-live="polite">
           {items.map((item) => (
-            <li key={item.id} className="rounded-lg bg-stone-100 px-3 py-2 text-sm">
-              <div className="flex items-center justify-between gap-2">
-                <span className="truncate text-stone-800">{item.name}</span>
-                <span className="shrink-0 text-stone-600">
-                  {item.state === "sending" && `${item.percent}%`}
-                  {item.state === "done" && (
-                    <span className="inline-flex items-center gap-1">
-                      Enviado <CheckIcon className="h-4 w-4" />
-                    </span>
-                  )}
-                  {item.state === "error" && item.uppyId && (
-                    <button
-                      type="button"
-                      onClick={() => void retry(item)}
-                      className="font-semibold underline"
-                    >
-                      Tentar de novo
-                    </button>
-                  )}
-                </span>
-              </div>
-              {item.state === "sending" && (
-                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-stone-200">
-                  <div
-                    className="h-full rounded-full transition-[width]"
-                    style={{ width: `${item.percent}%`, backgroundColor: color }}
-                  />
+            <li
+              key={item.id}
+              className="flex items-center gap-3 rounded-lg bg-stone-100 p-2 text-sm"
+            >
+              <LocalPreview
+                url={item.previewUrl}
+                kind={item.kind}
+                className="h-12 w-12 shrink-0 rounded-md"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="truncate font-medium text-stone-800">{item.label}</span>
+                  <span className="shrink-0 text-stone-600">
+                    {item.state === "sending" && `${item.percent}%`}
+                    {item.state === "done" && (
+                      <span className="inline-flex items-center gap-1">
+                        Enviado <CheckIcon className="h-4 w-4" />
+                      </span>
+                    )}
+                    {item.state === "error" && item.uppyId && (
+                      <button
+                        type="button"
+                        onClick={() => void retry(item)}
+                        className="font-semibold underline"
+                      >
+                        Tentar de novo
+                      </button>
+                    )}
+                  </span>
                 </div>
-              )}
-              {item.state === "done" && (
-                <p className="mt-0.5 text-xs text-stone-600">
-                  Aparece na galeria assim que ficar pronto.
-                </p>
-              )}
-              {item.message && <p className="mt-0.5 text-xs text-red-700">{item.message}</p>}
+                {item.state === "sending" && (
+                  <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-stone-200">
+                    <div
+                      className="h-full rounded-full transition-[width]"
+                      style={{ width: `${item.percent}%`, backgroundColor: color }}
+                    />
+                  </div>
+                )}
+                {item.state === "done" && (
+                  <p className="mt-0.5 text-xs text-stone-600">
+                    Aparece na galeria assim que ficar pronto.
+                  </p>
+                )}
+                {item.message && <p className="mt-0.5 text-xs text-red-700">{item.message}</p>}
+              </div>
             </li>
           ))}
         </ul>
       )}
     </section>
   );
+}
+
+/** Some phones report no type for videos (MOV); the extension tells. */
+function isVideo(file: File): boolean {
+  return file.type.startsWith("video/") || /\.(mov|mp4|m4v|webm)$/i.test(file.name);
 }
 
 async function errorMessage(response: Response): Promise<string> {
