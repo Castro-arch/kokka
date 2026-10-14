@@ -9,8 +9,9 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-kokka}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kokka}
       POSTGRES_DB: ${POSTGRES_DB:-kokka}
+    # Host ports default off the standard ones so a native Postgres/Redis can keep running.
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -25,7 +26,7 @@ services:
     # BullMQ requires noeviction so queued jobs are never dropped under memory pressure.
     command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6380}:6379"
     volumes:
       - redis-data:/data
     healthcheck:
