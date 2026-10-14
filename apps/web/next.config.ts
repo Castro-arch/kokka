@@ -1,8 +1,12 @@
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadEnvConfig } from "@next/env";
 import type { NextConfig } from "next";
 
-const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
+// resolve() drops the trailing separator fileURLToPath leaves on a directory URL. With it, the
+// Turbopack root on Windows ("C:\...\kokka\") made every dev rebuild restart the client entry, and
+// the browser fell into a full-reload loop ("HMR hash mismatch").
+const repoRoot = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 
 // The single .env lives at the repo root, shared with the worker and the db scripts; next only
 // reads apps/web, so load the root files too. Force a reload because next has already cached its
