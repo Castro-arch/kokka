@@ -1,0 +1,318 @@
+"use client";
+
+import type { AwsBody } from "@uppy/aws-s3";
+import type { Meta, Uppy } from "@uppy/core";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
+
+interface UploadMeta extends Meta {
+  mediaId: string;
+  key: string;
+}
+
+type GuestUppy = Uppy<UploadMeta, AwsBody>;
+
+interface Item {
+  id: string;
+  name: string;
+  /** 0–100 while sending. */
+  percent: number;
+  state: "sending" | "done" | "error";
+  message?: string;
+  uppyId?: string;
+}
+
+interface GuestUploaderProps {
+  slug: string;
+  partSizeBytes: number;
+  maxVideoDurationMs: number;
+  color: string;
+  onColor: string;
+}
+
+/**
+ * Photo/video picker and upload progress for guests. Uppy is only downloaded when the guest picks
+ * a file, keeping the gallery page light; each original goes to storage as a multipart upload
+ * whose requests the app presigns.
+ */
+export function GuestUploader({
+  slug,
+  partSizeBytes,
+  maxVideoDurationMs,
+  color,
+  onColor,
+}: GuestUploaderProps) {
+  const router = useRouter();
+  const uppyRef = useRef<Promise<GuestUppy> | null>(null);
+  const [items, setItems] = useState<Item[]>([]);
+  const sending = items.some((item) => item.state === "sending");
+
+  const update = (id: string, patch: Partial<Item>) => {
+    setItems((current) => current.map((item) => (item.id === id ? { ...item, ...patch } : item)));
+  };
+
+  // Leaving mid-upload loses it; let the browser ask first.
+  useEffect(() => {
+    if (!sending) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => {
+      window.removeEventListener("beforeunload", warn);
+    };
+  }, [sending]);
+
+  useEffect(
+    () => () =>
+      void uppyRef.current?.then((uppy) => {
+        uppy.destroy();
+      }),
+    [],
+  );
+
+  function getUppy(): Promise<GuestUppy> {
+    uppyRef.current ??= createUppy();
+    return uppyRef.current;
+  }
+
+  async function createUppy(): Promise<GuestUppy> {
+    const [{ default: UppyCore }, { default: AwsS3 }] = await Promise.all([
+      import("@uppy/core"),
+      import("@uppy/aws-s3"),
+    ]);
+    const uppy: GuestUppy = new UppyCore<UploadMeta, AwsBody>({ autoProceed: true });
+    uppy.use(AwsS3, {
+      shouldUseMultipart: true,
+      getChunkSize: () => partSizeBytes,
+      limit: 3,
+      generateObjectKey: (file) => String(file.meta.key),
+      signRequest: async (request) => {
+        // The key is events/{eventId}/original/{mediaId}.{ext}.
+        const mediaId = request.key.split("/").pop()?.split(".")[0] ?? "";
+        const response = await fetch(`/api/e/${slug}/uploads/${mediaId}/sign`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(request),
+        });
+        if (!response.ok) throw new Error(await errorMessage(response));
+        return (await response.json()) as { url: string; headers?: Record<string, string> };
+      },
+    });
+
+    uppy.on("upload-progress", (file, progress) => {
+      if (!file || !progress.bytesTotal) return;
+      const percent = Math.round((progress.bytesUploaded / progress.bytesTotal) * 100);
+      update(file.meta.mediaId, { percent: Math.min(percent, 99) });
+    });
+    uppy.on("upload-success", (file) => {
+      if (!file) return;
+      void finish(file.meta.mediaId);
+    });
+    uppy.on("upload-error", (file, error) => {
+      if (!file) return;
+      update(file.meta.mediaId, {
+        state: "error",
+        message: error.message || "O envio falhou.",
+      });
+    });
+    return uppy;
+  }
+
+  async function finish(mediaId: string) {
+    const response = await fetch(`/api/e/${slug}/uploads/${mediaId}/complete`, { method: "POST" });
+    if (!response.ok) {
+      update(mediaId, { state: "error", message: await errorMessage(response) });
+      return;
+    }
+    update(mediaId, { state: "done", percent: 100 });
+    router.refresh();
+  }
+
+  async function send(file: File) {
+    const localId = crypto.randomUUID();
+    setItems((current) => [
+      { id: localId, name: file.name, percent: 0, state: "sending" },
+      ...current,
+    ]);
+
+    const durationMs = file.type.startsWith("video/") ? await videoDurationMs(file) : undefined;
+    if (durationMs !== undefined && durationMs > maxVideoDurationMs) {
+      update(localId, { state: "error", message: "Vídeos podem ter até 3 minutos." });
+      return;
+    }
+
+    const response = await fetch(`/api/e/${slug}/uploads`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: file.name, type: file.type, size: file.size, durationMs }),
+    });
+    if (!response.ok) {
+      update(localId, { state: "error", message: await errorMessage(response) });
+      return;
+    }
+    const { mediaId, key } = (await response.json()) as { mediaId: string; key: string };
+    // From here on the item is tracked by its media id, which Uppy events carry.
+    update(localId, { id: mediaId });
+
+    try {
+      const uppy = await getUppy();
+      const uppyId = uppy.addFile({
+        name: file.name,
+        type: file.type,
+        data: file,
+        meta: { mediaId, key },
+      });
+      update(mediaId, { uppyId });
+    } catch {
+      update(mediaId, { state: "error", message: "Não foi possível iniciar o envio." });
+    }
+  }
+
+  async function retry(item: Item) {
+    if (!item.uppyId) return;
+    update(item.id, { state: "sending", message: undefined });
+    await (await getUppy()).retryUpload(item.uppyId);
+  }
+
+  function onPick(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
+    event.target.value = "";
+    for (const file of files) void send(file);
+  }
+
+  const button =
+    "flex flex-1 cursor-pointer flex-col items-center gap-1 rounded-xl px-3 py-3 text-center text-sm font-semibold focus-within:outline-2 focus-within:outline-offset-2";
+
+  return (
+    <section className="mt-5 px-4" aria-labelledby="upload-title">
+      <h2 id="upload-title" className="sr-only">
+        Enviar fotos e vídeos
+      </h2>
+      <div className="flex gap-2">
+        <label
+          className={button}
+          style={{ backgroundColor: color, color: onColor, outlineColor: color }}
+        >
+          <span aria-hidden className="text-2xl">
+            📷
+          </span>
+          Tirar foto
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="sr-only"
+            onChange={onPick}
+          />
+        </label>
+        <label
+          className={button}
+          style={{ backgroundColor: color, color: onColor, outlineColor: color }}
+        >
+          <span aria-hidden className="text-2xl">
+            🎥
+          </span>
+          Gravar vídeo
+          <input
+            type="file"
+            accept="video/*"
+            capture="environment"
+            className="sr-only"
+            onChange={onPick}
+          />
+        </label>
+        <label
+          className={`${button} border border-stone-300 bg-white text-stone-800`}
+          style={{ outlineColor: color }}
+        >
+          <span aria-hidden className="text-2xl">
+            🖼️
+          </span>
+          Da galeria
+          <input
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            className="sr-only"
+            onChange={onPick}
+          />
+        </label>
+      </div>
+
+      {items.length > 0 && (
+        <ul className="mt-3 space-y-2" aria-live="polite">
+          {items.map((item) => (
+            <li key={item.id} className="rounded-lg bg-stone-100 px-3 py-2 text-sm">
+              <div className="flex items-center justify-between gap-2">
+                <span className="truncate text-stone-800">{item.name}</span>
+                <span className="shrink-0 text-stone-600">
+                  {item.state === "sending" && `${item.percent}%`}
+                  {item.state === "done" && "Enviado ✓"}
+                  {item.state === "error" && item.uppyId && (
+                    <button
+                      type="button"
+                      onClick={() => void retry(item)}
+                      className="font-semibold underline"
+                    >
+                      Tentar de novo
+                    </button>
+                  )}
+                </span>
+              </div>
+              {item.state === "sending" && (
+                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-stone-200">
+                  <div
+                    className="h-full rounded-full transition-[width]"
+                    style={{ width: `${item.percent}%`, backgroundColor: color }}
+                  />
+                </div>
+              )}
+              {item.state === "done" && (
+                <p className="mt-0.5 text-xs text-stone-600">
+                  Aparece na galeria assim que ficar pronto.
+                </p>
+              )}
+              {item.message && <p className="mt-0.5 text-xs text-red-700">{item.message}</p>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+async function errorMessage(response: Response): Promise<string> {
+  try {
+    const body = (await response.json()) as { error?: string };
+    if (body.error) return body.error;
+  } catch {
+    // Not our JSON error (network, proxy): fall through to the generic message.
+  }
+  return "O envio falhou. Tente de novo.";
+}
+
+/** Duration from the file's own metadata; undefined when the browser cannot read it. */
+function videoDurationMs(file: File): Promise<number | undefined> {
+  return new Promise((resolve) => {
+    const video = document.createElement("video");
+    const url = URL.createObjectURL(file);
+    const done = (value: number | undefined) => {
+      URL.revokeObjectURL(url);
+      resolve(value);
+    };
+    const timeout = window.setTimeout(() => {
+      done(undefined);
+    }, 5000);
+    video.preload = "metadata";
+    video.onloadedmetadata = () => {
+      window.clearTimeout(timeout);
+      done(Number.isFinite(video.duration) ? Math.round(video.duration * 1000) : undefined);
+    };
+    video.onerror = () => {
+      window.clearTimeout(timeout);
+      done(undefined);
+    };
+    video.src = url;
+  });
+}
