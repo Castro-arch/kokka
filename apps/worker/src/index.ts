@@ -1,10 +1,9 @@
 import { createDb, sql } from "@kokka/db";
-import { runHealthChecks } from "@kokka/shared";
+import { QUEUE_NAMES, runHealthChecks } from "@kokka/shared";
 import { Worker } from "bullmq";
 import { Redis } from "ioredis";
 import { getWorkerEnv } from "./env.ts";
 import { createHealthServer } from "./health.ts";
-import { QUEUE_NAMES } from "./queues.ts";
 
 const env = getWorkerEnv();
 
