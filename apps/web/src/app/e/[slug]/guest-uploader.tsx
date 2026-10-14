@@ -1,12 +1,22 @@
 "use client";
 
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, CSSProperties } from "react";
 import { CameraIcon, CheckIcon, ImagesIcon, VideoIcon } from "./icons";
 import { LocalPreview } from "./local-preview";
 import { useUploads } from "./upload-context";
 
-/** Photo/video picker and upload progress for guests; the uploads live in the event layout. */
-export function GuestUploader({ color, onColor }: { color: string; onColor: string }) {
+interface GuestUploaderProps {
+  /** Event theme color, its darker edge and the text color legible on it. */
+  color: string;
+  colorEdge: string;
+  onColor: string;
+}
+
+/**
+ * Big picker buttons and the progress of each upload (docs/design, "Convidado · Enviar"). The
+ * uploads themselves live in the event layout.
+ */
+export function GuestUploader({ color, colorEdge, onColor }: GuestUploaderProps) {
   const { items, send, retry } = useUploads();
 
   function onPick(event: ChangeEvent<HTMLInputElement>) {
@@ -15,20 +25,18 @@ export function GuestUploader({ color, onColor }: { color: string; onColor: stri
     send(files);
   }
 
-  const button =
-    "flex flex-1 cursor-pointer flex-col items-center gap-1 rounded-xl px-3 py-3 text-center text-sm font-semibold focus-within:outline-2 focus-within:outline-offset-2";
+  const block =
+    "flex cursor-pointer items-center justify-center rounded-[22px] font-black focus-within:outline-3 focus-within:outline-offset-2 focus-within:outline-brand active:translate-y-0.5 active:border-b-[3px]";
+  const themed: CSSProperties = { backgroundColor: color, color: onColor, borderColor: colorEdge };
 
   return (
-    <section className="mt-5 px-4" aria-labelledby="upload-title">
+    <section className="flex flex-col gap-4" aria-labelledby="upload-title">
       <h2 id="upload-title" className="sr-only">
         Enviar fotos e vídeos
       </h2>
-      <div className="flex gap-2">
-        <label
-          className={button}
-          style={{ backgroundColor: color, color: onColor, outlineColor: color }}
-        >
-          <CameraIcon className="h-7 w-7" />
+      <div className="grid grid-cols-2 gap-3">
+        <label className={`${block} h-32 flex-col gap-2.5 border-b-[6px] text-lg`} style={themed}>
+          <CameraIcon className="h-10 w-10" strokeWidth={2.2} />
           Tirar foto
           <input
             type="file"
@@ -39,10 +47,9 @@ export function GuestUploader({ color, onColor }: { color: string; onColor: stri
           />
         </label>
         <label
-          className={button}
-          style={{ backgroundColor: color, color: onColor, outlineColor: color }}
+          className={`${block} h-32 flex-col gap-2.5 border-b-[6px] border-sun-deep bg-sun text-lg text-sun-ink`}
         >
-          <VideoIcon className="h-7 w-7" />
+          <VideoIcon className="h-10 w-10" strokeWidth={2.2} />
           Gravar vídeo
           <input
             type="file"
@@ -53,11 +60,10 @@ export function GuestUploader({ color, onColor }: { color: string; onColor: stri
           />
         </label>
         <label
-          className={`${button} border border-stone-300 bg-white text-stone-800`}
-          style={{ outlineColor: color }}
+          className={`${block} col-span-2 h-16 gap-2.5 border-2 border-b-[6px] border-line bg-white text-[17px] text-ink`}
         >
-          <ImagesIcon className="h-7 w-7" />
-          Da galeria
+          <ImagesIcon className="h-6.5 w-6.5" strokeWidth={2.2} />
+          Escolher da galeria
           <input
             type="file"
             accept="image/*,video/*"
@@ -69,52 +75,59 @@ export function GuestUploader({ color, onColor }: { color: string; onColor: stri
       </div>
 
       {items.length > 0 && (
-        <ul className="mt-3 space-y-2" aria-live="polite">
+        <ul className="flex flex-col gap-2.5" aria-live="polite">
           {items.map((item) => (
             <li
               key={item.id}
-              className="flex items-center gap-3 rounded-lg bg-stone-100 p-2 text-sm"
+              className="flex items-center gap-3 rounded-[18px] border-2 border-b-[5px] border-line bg-block p-3"
             >
               <LocalPreview
                 url={item.previewUrl}
                 kind={item.kind}
-                className="h-12 w-12 shrink-0 rounded-md"
+                className="h-13 w-13 shrink-0 rounded-xl"
               />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="truncate font-medium text-stone-800">{item.label}</span>
-                  <span className="shrink-0 text-stone-600">
-                    {item.state === "sending" && `${item.percent}%`}
-                    {item.state === "done" && (
-                      <span className="inline-flex items-center gap-1">
-                        Enviado <CheckIcon className="h-4 w-4" />
-                      </span>
-                    )}
-                    {item.state === "error" && item.uppyId && (
-                      <button
-                        type="button"
-                        onClick={() => void retry(item)}
-                        className="font-semibold underline"
-                      >
-                        Tentar de novo
-                      </button>
-                    )}
-                  </span>
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                <div className="flex items-center justify-between gap-2 text-[15px] font-black">
+                  <span className="truncate">{item.label}</span>
+                  {item.state === "sending" && (
+                    <span className="text-brand-deep">{item.percent}%</span>
+                  )}
+                  {item.state === "done" && (
+                    <span className="inline-flex items-center gap-1 text-[#0b5a2a]">
+                      Enviado <CheckIcon className="h-4 w-4" strokeWidth={3} />
+                    </span>
+                  )}
+                  {item.state === "error" && item.uppyId && (
+                    <button
+                      type="button"
+                      onClick={() => void retry(item)}
+                      className="text-brand-deep underline"
+                    >
+                      Tentar de novo
+                    </button>
+                  )}
                 </div>
                 {item.state === "sending" && (
-                  <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-stone-200">
-                    <div
-                      className="h-full rounded-full transition-[width]"
-                      style={{ width: `${item.percent}%`, backgroundColor: color }}
-                    />
-                  </div>
+                  <>
+                    <div className="h-3 overflow-hidden rounded-full border-2 border-line bg-white">
+                      <div
+                        className="h-full rounded-full bg-brand-strong transition-[width]"
+                        style={{ width: `${item.percent}%` }}
+                      />
+                    </div>
+                    <span className="text-[13px] font-bold text-ink-soft">
+                      Pode fechar a câmera, a gente continua enviando.
+                    </span>
+                  </>
                 )}
                 {item.state === "done" && (
-                  <p className="mt-0.5 text-xs text-stone-600">
+                  <span className="text-[13px] font-bold text-ink-soft">
                     Aparece na galeria assim que ficar pronto.
-                  </p>
+                  </span>
                 )}
-                {item.message && <p className="mt-0.5 text-xs text-red-700">{item.message}</p>}
+                {item.message && (
+                  <span className="text-[13px] font-bold text-brand-deep">{item.message}</span>
+                )}
               </div>
             </li>
           ))}

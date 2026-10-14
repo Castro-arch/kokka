@@ -1,64 +1,76 @@
 import type { Metadata } from "next";
+import { darken } from "@/lib/color";
 import { formatDateTime } from "@/lib/event-display";
-import { listOwnPending } from "@/lib/guest";
+import { listOwnMedia } from "@/lib/guest";
 import { getStorage } from "@/lib/storage";
+import { EventHeader } from "./event-header";
 import { guestMetadata, loadGuestPage } from "./guest-page";
 import { GuestUploader } from "./guest-uploader";
 import { OwnPending } from "./own-pending";
+
+/** Latest own uploads shown under the buttons; the rest is in "Meus envios". */
+const OWN_ON_SEND_PAGE = 6;
 
 export async function generateMetadata({ params }: PageProps<"/e/[slug]">): Promise<Metadata> {
   return guestMetadata((await params).slug);
 }
 
-/** "Enviar": where the QR code lands. */
+/** "Enviar": where the QR code lands (docs/design, "Convidado · Enviar"). */
 export default async function GuestSendPage({ params }: PageProps<"/e/[slug]">) {
   const { event, color, onColor, fontClass, deviceId } = await loadGuestPage((await params).slug);
-  const coverUrl = event.theme.coverKey
-    ? await getStorage().signedGetUrl(event.theme.coverKey)
-    : null;
+  const storage = getStorage();
+  const coverUrl = event.theme.coverKey ? await storage.signedGetUrl(event.theme.coverKey) : null;
 
   const header = (
-    <header className="relative overflow-hidden" style={{ backgroundColor: color, color: onColor }}>
-      {coverUrl && (
-        // eslint-disable-next-line @next/next/no-img-element -- signed storage URL
-        <img src={coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
-      )}
-      <div
-        className={`relative px-5 pt-16 pb-8 text-center ${coverUrl ? "bg-linear-to-t from-black/70 to-black/0 text-white" : ""}`}
-      >
-        <h1 className={`text-4xl font-bold ${fontClass}`}>{event.name}</h1>
-        {event.subtitle && <p className={`mt-1 text-lg ${fontClass}`}>{event.subtitle}</p>}
-      </div>
-    </header>
+    <EventHeader
+      name={event.name}
+      subtitle={event.subtitle}
+      color={color}
+      onColor={onColor}
+      fontClass={fontClass}
+      coverUrl={coverUrl}
+      live={event.status === "active"}
+    />
   );
 
   if (event.status === "expired") {
     return (
       <main className="mx-auto max-w-2xl">
         {header}
-        <p className="px-5 py-10 text-center text-stone-700">
+        <p className="block-card mx-5 mt-6 p-5 text-center font-extrabold text-ink-soft">
           Este evento acabou e as fotos e vídeos foram apagados.
         </p>
       </main>
     );
   }
 
-  const ownPending = deviceId ? await listOwnPending(event.id, deviceId) : [];
+  const own = deviceId ? await listOwnMedia(event.id, deviceId, OWN_ON_SEND_PAGE) : [];
+  const ownItems = await Promise.all(
+    own.map(async ({ id, kind, status, thumbKey }) => ({
+      id,
+      kind,
+      status,
+      thumbUrl: status === "ready" && thumbKey ? await storage.signedGetUrl(thumbKey) : undefined,
+    })),
+  );
 
   return (
     <main className="mx-auto max-w-2xl">
       {header}
+      <div className="flex flex-col gap-5 p-5">
+        {event.status === "active" && (
+          <GuestUploader color={color} colorEdge={darken(color)} onColor={onColor} />
+        )}
 
-      {event.status === "active" && <GuestUploader color={color} onColor={onColor} />}
+        {event.status === "closed" && (
+          <p className="rounded-[18px] border-2 border-b-[5px] border-sun-line bg-sun-soft p-4 font-extrabold text-sun-text">
+            Os envios foram encerrados. Fotos e vídeos ficam disponíveis para baixar até{" "}
+            {formatDateTime(event.expiresAt)}.
+          </p>
+        )}
 
-      {event.status === "closed" && (
-        <p className="mx-4 mt-4 rounded-lg bg-stone-100 px-4 py-3 text-sm text-stone-700">
-          Os envios foram encerrados. Fotos e vídeos ficam disponíveis para baixar até{" "}
-          {formatDateTime(event.expiresAt)}.
-        </p>
-      )}
-
-      <OwnPending items={ownPending.map(({ id, kind, status }) => ({ id, kind, status }))} />
+        <OwnPending items={ownItems} />
+      </div>
     </main>
   );
 }
