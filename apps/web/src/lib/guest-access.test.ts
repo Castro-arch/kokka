@@ -30,11 +30,14 @@ describe("guest device cookie", () => {
 });
 
 describe("clientIp", () => {
-  it("takes the first forwarded address", () => {
-    expect(clientIp(new Headers({ "x-forwarded-for": "203.0.113.7, 10.0.0.2" }))).toBe(
+  it("trusts only the address the proxy set, not one the client forged", () => {
+    // The client sent "1.2.3.4"; the proxy appended the real address.
+    expect(clientIp(new Headers({ "x-forwarded-for": "1.2.3.4, 203.0.113.7" }))).toBe(
       "203.0.113.7",
     );
-    expect(clientIp(new Headers({ "x-real-ip": "198.51.100.1" }))).toBe("198.51.100.1");
+    expect(
+      clientIp(new Headers({ "x-real-ip": "198.51.100.1", "x-forwarded-for": "1.2.3.4" })),
+    ).toBe("198.51.100.1");
     expect(clientIp(new Headers())).toBe("unknown");
   });
 });
