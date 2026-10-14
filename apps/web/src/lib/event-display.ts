@@ -3,6 +3,8 @@ import {
   DEFAULT_THEME,
   EVENT_TIMEZONE,
   FONT_KEYS,
+  parseLocalDateTime,
+  toLocalDateTimeInput,
   type EventStatus,
   type FontKey,
 } from "@kokka/shared";
@@ -37,4 +39,41 @@ export function resolveTheme(theme: EventTheme): { primaryColor: string; font: F
     primaryColor: theme.primaryColor ?? DEFAULT_THEME.primaryColor,
     font: FONT_KEYS.find((key) => key === theme.font) ?? DEFAULT_THEME.font,
   };
+}
+
+const dayMonth = new Intl.DateTimeFormat("pt-BR", {
+  timeZone: EVENT_TIMEZONE,
+  day: "2-digit",
+  month: "2-digit",
+});
+
+const hourMinute = new Intl.DateTimeFormat("pt-BR", {
+  timeZone: EVENT_TIMEZONE,
+  hour: "numeric",
+  minute: "2-digit",
+  hourCycle: "h23",
+});
+
+/** "19h" or "19h30", in the event timezone. */
+function shortTime(date: Date): string {
+  const [hour, minute] = hourMinute.format(date).split(":");
+  return minute === "00" ? `${hour ?? ""}h` : `${hour ?? ""}h${minute ?? ""}`;
+}
+
+/** When an event happens, for its card: "15/11 · 19h às 3h". */
+export function formatEventWhen(startsAt: Date | null, endsAt: Date | null): string {
+  if (!startsAt) return "Sem data";
+  const start = `${dayMonth.format(startsAt)} · ${shortTime(startsAt)}`;
+  return endsAt ? `${start} às ${shortTime(endsAt)}` : start;
+}
+
+/** "Dia de hoje" in the event timezone, as the instant it started. */
+export function startOfEventDay(now = new Date()): Date {
+  const local = toLocalDateTimeInput(now).slice(0, 10);
+  return parseLocalDateTime(`${local}T00:00`) ?? now;
+}
+
+/** Whole days left until `date`, never negative. */
+export function daysUntil(date: Date, now = new Date()): number {
+  return Math.max(0, Math.ceil((date.getTime() - now.getTime()) / 86_400_000));
 }

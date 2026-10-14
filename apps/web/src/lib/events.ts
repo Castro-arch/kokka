@@ -1,5 +1,16 @@
 import "server-only";
-import { and, desc, eq, events, sql, type Event, type EventTheme, type NewEvent } from "@kokka/db";
+import {
+  and,
+  desc,
+  eq,
+  events,
+  inArray,
+  media,
+  sql,
+  type Event,
+  type EventTheme,
+  type NewEvent,
+} from "@kokka/db";
 import {
   expiresAtFor,
   generateSlug,
@@ -17,6 +28,61 @@ const eventId = z.uuid();
 
 export function listEvents(): Promise<Event[]> {
   return getDb().select().from(events).orderBy(desc(events.createdAt));
+}
+
+/** Media guests sent and that made it to storage (on their way to or in the gallery). */
+const RECEIVED = inArray(media.status, ["processing", "ready", "hidden"]);
+
+export interface MediaCounts {
+  images: number;
+  videos: number;
+}
+
+/** Photos and videos received per event, for the event cards. */
+export async function mediaCountsByEvent(): Promise<Map<string, MediaCounts>> {
+  const rows = await getDb()
+    .select({
+      eventId: media.eventId,
+      images: sql<number>`count(*) filter (where ${media.kind} = 'image')::int`,
+      videos: sql<number>`count(*) filter (where ${media.kind} = 'video')::int`,
+    })
+    .from(media)
+    .where(RECEIVED)
+    .groupBy(media.eventId);
+  return new Map(rows.map(({ eventId, ...counts }) => [eventId, counts]));
+}
+
+export interface AdminSummary {
+  liveEvents: number;
+  imagesToday: number;
+  videosToday: number;
+  /** Distinct guest phones that sent something today. */
+  sendersToday: number;
+}
+
+/** The numbers on top of the events page; "today" starts at midnight in the event timezone. */
+export async function adminSummary(since: Date): Promise<AdminSummary> {
+  const db = getDb();
+  const [[live], [today]] = await Promise.all([
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(events)
+      .where(eq(events.status, "active")),
+    db
+      .select({
+        images: sql<number>`count(*) filter (where ${media.kind} = 'image')::int`,
+        videos: sql<number>`count(*) filter (where ${media.kind} = 'video')::int`,
+        senders: sql<number>`count(distinct ${media.deviceId})::int`,
+      })
+      .from(media)
+      .where(and(RECEIVED, sql`${media.createdAt} >= ${since.toISOString()}::timestamptz`)),
+  ]);
+  return {
+    liveEvents: live?.count ?? 0,
+    imagesToday: today?.images ?? 0,
+    videosToday: today?.videos ?? 0,
+    sendersToday: today?.senders ?? 0,
+  };
 }
 
 /** Undefined for unknown or malformed ids, so callers can 404 without a database error. */
