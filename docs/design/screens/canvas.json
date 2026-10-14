@@ -1,0 +1,19 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-14T20:02:12Z" },
+  "title": "Kokka — redesign",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 390, "h": 844, "title": "Convidado · Enviar", "is_interactive": true },
+    "Sucesso.dc.html": { "x": 470, "y": 0, "w": 390, "h": 844, "title": "Convidado · Envio concluído" },
+    "Galeria.dc.html": { "x": 940, "y": 0, "w": 390, "h": 844, "title": "Convidado · Galeria" },
+    "Admin.dc.html": { "x": 0, "y": 1150, "w": 1280, "h": 900, "title": "Admin · Eventos", "expand": "fill" }
+  },
+  "order": ["Main.dc.html", "Sucesso.dc.html", "Galeria.dc.html", "Admin.dc.html"],
+  "notes": {
+    "t_guest": { "x": 0, "y": -260, "text": "Convidado (celular)", "kind": "title1", "maxW": 1330 },
+    "t_admin": { "x": 0, "y": 886, "text": "Painel do organizador", "kind": "title1", "maxW": 1280 }
+  },
+  "designSystems": []
+}
