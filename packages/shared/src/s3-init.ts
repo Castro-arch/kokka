@@ -31,7 +31,7 @@ await client.send(
       CORSRules: [
         {
           AllowedOrigins: [origin],
-          AllowedMethods: ["GET", "PUT", "HEAD"],
+          AllowedMethods: ["GET", "PUT", "POST", "DELETE", "HEAD"],
           AllowedHeaders: ["*"],
           ExposeHeaders: ["ETag"],
           MaxAgeSeconds: 3600,
