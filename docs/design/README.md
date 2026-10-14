@@ -11,7 +11,9 @@ Fonte de verdade visual para o passo de UI; não é código de produção.
 - canvas.json — posição das telas no canvas
 
 As imagens nos mockups apontam para `/_blob/...` (assets do canvas online).
-Os equivalentes locais estão em assets/: mascot.png e logo-light.png.
+Os equivalentes locais são os assets da marca no repositório:
+[`.github/assets/mascot.png`](../../.github/assets/mascot.png) e
+[`.github/assets/logo-light.png`](../../.github/assets/logo-light.png).
 
 ## Sistema visual
 - Fonte: Nunito 700/800/900 (Google Fonts)
