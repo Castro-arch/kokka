@@ -12,8 +12,10 @@ import {
 } from "@/lib/event-display";
 import { getEvent } from "@/lib/events";
 import { FONT_CLASS_NAMES } from "@/lib/fonts";
+import { getStorage } from "@/lib/storage";
 import { transitionEventAction, updateEventAction, updateThemeAction } from "../actions";
 import { EventForm } from "../event-form";
+import { CoverForm } from "./cover-form";
 import { StatusControl } from "./status-control";
 import { ThemeForm } from "./theme-form";
 
@@ -26,6 +28,9 @@ export default async function EventPage({ params }: PageProps<"/admin/eventos/[i
   if (!event) notFound();
 
   const next = nextAdminStatus(event.status);
+  const coverUrl = event.theme.coverKey
+    ? await getStorage().signedGetUrl(event.theme.coverKey)
+    : null;
 
   return (
     <div className="space-y-8">
@@ -84,6 +89,12 @@ export default async function EventPage({ params }: PageProps<"/admin/eventos/[i
             fontClassNames={FONT_CLASS_NAMES}
             preview={{ name: event.name, subtitle: event.subtitle }}
           />
+        </Section>
+      )}
+
+      {event.status !== "expired" && (
+        <Section title="Foto de capa">
+          <CoverForm eventId={event.id} coverUrl={coverUrl} />
         </Section>
       )}
     </div>
