@@ -17,8 +17,10 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm fetch --prod
 COPY packages ./packages
 COPY apps/worker ./apps/worker
+# The cache mount is not saved with the layer cache: on a fresh CI runner the fetch layer can be
+# CACHED while the store is empty, so install may still download instead of running --offline.
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --offline --frozen-lockfile --prod --filter "@kokka/worker..."
+    pnpm install --prefer-offline --frozen-lockfile --prod --filter "@kokka/worker..."
 
 FROM node:22-alpine AS runtime
 RUN apk add --no-cache ffmpeg
