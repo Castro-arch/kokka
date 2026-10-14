@@ -41,6 +41,22 @@ Open `http://localhost:3000/admin` and sign in with the credentials from your `.
 
 **Testing the QR code on a phone:** set `APP_URL` to your machine's LAN address (e.g. `http://192.168.0.10:3000`), point `S3_ENDPOINT` at the same address (e.g. `http://192.168.0.10:9000`), run `pnpm services:up` again so the storage CORS allows that origin, start `pnpm dev:web:lan`, and connect the phone to the same Wi-Fi.
 
+### Without Docker
+
+Use managed services for Postgres and Redis and a native SeaweedFS binary for storage (or a dev R2 bucket):
+
+- **Postgres:** a Neon dev branch, `DATABASE_URL=postgresql://…neon.tech/<db>?sslmode=verify-full` (direct host, not `-pooler`).
+- **Redis:** an Upstash dev database, `REDIS_URL=rediss://default:<password>@<host>.upstash.io:6379`.
+- **Storage:** download `windows_amd64.zip` (or your platform) from the [SeaweedFS 4.48 release](https://github.com/seaweedfs/seaweedfs/releases/tag/4.48), keep it and its data outside the repo, and run it with the `.env` keys as the admin identity:
+
+  ```bash
+  AWS_ACCESS_KEY_ID=<S3_ACCESS_KEY_ID> AWS_SECRET_ACCESS_KEY=<S3_SECRET_ACCESS_KEY> \
+    weed mini -dir=<data dir> -s3.port=9000 -webdav=false -admin.ui=false \
+    -s3.port.iceberg=0 -s3.port.lance=0
+  ```
+
+Then `pnpm s3:init` (creates the bucket and its CORS rule for `APP_URL`, like the compose `s3-init` service) and continue from `pnpm db:migrate`. With a dev R2 bucket instead, set `S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com` and `S3_REGION=auto`, and create the bucket and its CORS rule in the Cloudflare dashboard (an object-scoped R2 token cannot change bucket settings). Run the integration tests against these services with `set -a; source .env; set +a; pnpm test`.
+
 ## How it works
 
 ```mermaid
