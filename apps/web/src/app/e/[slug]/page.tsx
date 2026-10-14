@@ -10,7 +10,8 @@ import { formatDateTime, resolveTheme } from "@/lib/event-display";
 import { FONT_CLASS_NAMES } from "@/lib/fonts";
 import { decodeCursor, getGuestEvent, listGallery, listOwnPending } from "@/lib/guest";
 import { getStorage } from "@/lib/storage";
-import { GalleryTile, type GalleryTileItem } from "./gallery-tile";
+import { GalleryLive } from "./gallery-live";
+import type { GalleryTileItem } from "./gallery-tile";
 import { GuestUploader } from "./guest-uploader";
 
 export async function generateMetadata({ params }: PageProps<"/e/[slug]">): Promise<Metadata> {
@@ -127,19 +128,16 @@ export default async function GuestEventPage({ params, searchParams }: PageProps
         <h2 id="gallery" className="sr-only">
           Galeria
         </h2>
-        {tiles.length > 0 ? (
-          <ul className="grid grid-cols-3 gap-1.5" data-gallery>
-            {tiles.map((item) => (
-              <GalleryTile key={item.id} item={item} />
-            ))}
-          </ul>
-        ) : (
-          <p className="py-10 text-center text-stone-600" data-gallery-empty>
-            {event.status === "active"
+        <GalleryLive
+          slug={event.slug}
+          initial={tiles}
+          live={!cursor}
+          emptyMessage={
+            event.status === "active"
               ? "Nenhuma foto ainda. Que tal enviar a primeira?"
-              : "Nenhuma foto neste evento."}
-          </p>
-        )}
+              : "Nenhuma foto neste evento."
+          }
+        />
         {gallery.next && (
           <div className="mt-4 text-center">
             <Link
