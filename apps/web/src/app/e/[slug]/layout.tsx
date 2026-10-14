@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getGuestEvent } from "@/lib/guest";
 import { GuestNav } from "./guest-nav";
 import { UploadProvider } from "./upload-context";
+import { UploadSuccess } from "./upload-success";
 
 /**
  * Guest area of an event: keeps uploads alive across its pages (send, gallery, my uploads) and
@@ -21,6 +22,7 @@ export default async function GuestEventLayout({ children, params }: LayoutProps
     >
       <div className="min-h-dvh bg-white pb-28">{children}</div>
       {event.status !== "expired" && <GuestNav slug={slug} />}
+      <UploadSuccess slug={slug} />
     </UploadProvider>
   );
 }
