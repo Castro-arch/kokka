@@ -1,4 +1,5 @@
 import type { MediaKind } from "@kokka/shared";
+import { PlayIcon } from "./icons";
 
 export interface GalleryTileItem {
   id: string;
@@ -27,8 +28,9 @@ export function GalleryTile({ item }: { item: GalleryTileItem }) {
         className="h-full w-full object-cover"
       />
       {item.kind === "video" && (
-        <span className="absolute top-1.5 left-1.5 rounded bg-black/60 px-1.5 py-0.5 text-xs font-medium text-white">
-          ▶ Vídeo
+        <span className="absolute top-1.5 left-1.5 inline-flex items-center gap-1 rounded bg-black/60 px-1.5 py-0.5 text-xs font-medium text-white">
+          <PlayIcon className="h-3 w-3" />
+          Vídeo
         </span>
       )}
       <a

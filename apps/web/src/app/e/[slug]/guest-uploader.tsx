@@ -4,6 +4,7 @@ import type { AwsBody } from "@uppy/aws-s3";
 import type { Meta, Uppy } from "@uppy/core";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { CameraIcon, CheckIcon, ImagesIcon, VideoIcon } from "./icons";
 
 interface UploadMeta extends Meta {
   mediaId: string;
@@ -198,9 +199,7 @@ export function GuestUploader({
           className={button}
           style={{ backgroundColor: color, color: onColor, outlineColor: color }}
         >
-          <span aria-hidden className="text-2xl">
-            📷
-          </span>
+          <CameraIcon className="h-7 w-7" />
           Tirar foto
           <input
             type="file"
@@ -214,9 +213,7 @@ export function GuestUploader({
           className={button}
           style={{ backgroundColor: color, color: onColor, outlineColor: color }}
         >
-          <span aria-hidden className="text-2xl">
-            🎥
-          </span>
+          <VideoIcon className="h-7 w-7" />
           Gravar vídeo
           <input
             type="file"
@@ -230,9 +227,7 @@ export function GuestUploader({
           className={`${button} border border-stone-300 bg-white text-stone-800`}
           style={{ outlineColor: color }}
         >
-          <span aria-hidden className="text-2xl">
-            🖼️
-          </span>
+          <ImagesIcon className="h-7 w-7" />
           Da galeria
           <input
             type="file"
@@ -252,7 +247,11 @@ export function GuestUploader({
                 <span className="truncate text-stone-800">{item.name}</span>
                 <span className="shrink-0 text-stone-600">
                   {item.state === "sending" && `${item.percent}%`}
-                  {item.state === "done" && "Enviado ✓"}
+                  {item.state === "done" && (
+                    <span className="inline-flex items-center gap-1">
+                      Enviado <CheckIcon className="h-4 w-4" />
+                    </span>
+                  )}
                   {item.state === "error" && item.uppyId && (
                     <button
                       type="button"
