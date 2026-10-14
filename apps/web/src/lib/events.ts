@@ -1,5 +1,5 @@
 import "server-only";
-import { and, desc, eq, events, sql, type Event, type NewEvent } from "@kokka/db";
+import { and, desc, eq, events, sql, type Event, type EventTheme, type NewEvent } from "@kokka/db";
 import {
   expiresAtFor,
   generateSlug,
@@ -32,6 +32,23 @@ export async function updateEvent(id: string, input: EventInput): Promise<Event 
   const [event] = await getDb()
     .update(events)
     .set(input)
+    .where(and(eq(events.id, id), sql`${events.status} <> 'expired'`))
+    .returning();
+  return event;
+}
+
+/**
+ * Merges `patch` into the theme in a single statement, so saving colors and uploading a cover at
+ * the same time never overwrite each other. Expired events are read-only.
+ */
+export async function mergeEventTheme(
+  id: string,
+  patch: Partial<EventTheme>,
+): Promise<Event | undefined> {
+  if (!eventId.safeParse(id).success) return undefined;
+  const [event] = await getDb()
+    .update(events)
+    .set({ theme: sql`${events.theme} || ${JSON.stringify(patch)}::jsonb` })
     .where(and(eq(events.id, id), sql`${events.status} <> 'expired'`))
     .returning();
   return event;

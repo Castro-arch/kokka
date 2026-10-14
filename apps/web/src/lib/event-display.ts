@@ -1,4 +1,11 @@
-import { EVENT_TIMEZONE, type EventStatus } from "@kokka/shared";
+import type { EventTheme } from "@kokka/db";
+import {
+  DEFAULT_THEME,
+  EVENT_TIMEZONE,
+  FONT_KEYS,
+  type EventStatus,
+  type FontKey,
+} from "@kokka/shared";
 
 export const STATUS_LABELS: Record<EventStatus, string> = {
   draft: "Rascunho",
@@ -22,4 +29,12 @@ const dateTimeFormat = new Intl.DateTimeFormat("pt-BR", {
 
 export function formatDateTime(date: Date | null): string {
   return date ? dateTimeFormat.format(date) : "—";
+}
+
+/** The event theme with defaults filled in and unknown fonts replaced. */
+export function resolveTheme(theme: EventTheme): { primaryColor: string; font: FontKey } {
+  return {
+    primaryColor: theme.primaryColor ?? DEFAULT_THEME.primaryColor,
+    font: FONT_KEYS.find((key) => key === theme.font) ?? DEFAULT_THEME.font,
+  };
 }
