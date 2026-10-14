@@ -22,3 +22,14 @@ export function readableTextColor(background: string): string {
   const bg = luminance(background);
   return (1 + 0.05) / (bg + 0.05) >= LARGE_TEXT_CONTRAST ? LIGHT_TEXT : DARK_TEXT;
 }
+
+/** The color mixed toward black by `amount` (0–1): the bottom edge of the theme-colored blocks. */
+export function darken(hex: string, amount = 0.25): string {
+  const channels = [1, 3, 5].map((start) => {
+    const value = parseInt(hex.slice(start, start + 2), 16);
+    return Math.round(value * (1 - amount))
+      .toString(16)
+      .padStart(2, "0");
+  });
+  return `#${channels.join("")}`;
+}
