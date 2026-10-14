@@ -8,3 +8,4 @@ export * from "./theme.ts";
 export * from "./queues.ts";
 export * from "./slug.ts";
 export * from "./storage-keys.ts";
+export * from "./uploads.ts";
