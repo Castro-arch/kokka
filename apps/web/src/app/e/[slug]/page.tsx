@@ -1,5 +1,4 @@
 import type { Media } from "@kokka/db";
-import { MAX_VIDEO_DURATION_MS, UPLOAD_PART_SIZE_BYTES } from "@kokka/shared";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
@@ -86,15 +85,7 @@ export default async function GuestEventPage({ params, searchParams }: PageProps
     <main className="mx-auto min-h-dvh max-w-2xl bg-white pb-12">
       {header}
 
-      {event.status === "active" && (
-        <GuestUploader
-          slug={event.slug}
-          partSizeBytes={UPLOAD_PART_SIZE_BYTES}
-          maxVideoDurationMs={MAX_VIDEO_DURATION_MS}
-          color={theme.primaryColor}
-          onColor={onTheme}
-        />
-      )}
+      {event.status === "active" && <GuestUploader color={theme.primaryColor} onColor={onTheme} />}
 
       {event.status === "closed" && (
         <p className="mx-4 mt-4 rounded-lg bg-stone-100 px-4 py-3 text-sm text-stone-700">
