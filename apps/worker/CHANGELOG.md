@@ -1,5 +1,13 @@
 # @kokka/worker
 
+## 0.3.0
+
+### Patch Changes
+
+- Updated dependencies [36e1c08]
+  - @kokka/db@0.3.0
+  - @kokka/shared@0.3.0
+
 ## 0.2.0
 
 ### Patch Changes
