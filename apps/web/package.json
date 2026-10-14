@@ -16,6 +16,7 @@
     "@kokka/shared": "workspace:*",
     "@next/env": "^16.4.0",
     "better-auth": "~1.7.7",
+    "bullmq": "^6.3.13",
     "ioredis": "^6.0.0",
     "next": "^16.4.0",
     "qrcode": "^1.5.4",
