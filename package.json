@@ -26,7 +26,8 @@
     "dev:web": "pnpm --filter @kokka/web dev",
     "dev:web:lan": "pnpm --filter @kokka/web dev:lan",
     "dev:worker": "pnpm --filter @kokka/worker dev",
-    "db:seed-admin": "pnpm --filter @kokka/db seed-admin"
+    "db:seed-admin": "pnpm --filter @kokka/db seed-admin",
+    "s3:init": "pnpm --filter @kokka/shared s3-init"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
