@@ -1,6 +1,7 @@
 import "server-only";
 import { and, desc, eq, events, inArray, media, sql, type Event, type Media } from "@kokka/db";
 import { isValidSlug } from "@kokka/shared";
+import { cache } from "react";
 import { z } from "zod";
 import { getDb } from "./db";
 
@@ -14,11 +15,11 @@ const OWN_PENDING_LIMIT = 20;
  * The event behind a guest link. Drafts are not public yet, so they look like unknown slugs.
  * Expired events are returned so the page can say the event is over.
  */
-export async function getGuestEvent(slug: string): Promise<Event | undefined> {
+export const getGuestEvent = cache(async (slug: string): Promise<Event | undefined> => {
   if (!isValidSlug(slug)) return undefined;
   const [event] = await getDb().select().from(events).where(eq(events.slug, slug));
   return event && event.status !== "draft" ? event : undefined;
-}
+});
 
 export interface GalleryCursor {
   createdAt: Date;
@@ -78,6 +79,22 @@ export function listOwnPending(eventId: string, deviceId: string): Promise<Media
     )
     .orderBy(desc(media.createdAt))
     .limit(OWN_PENDING_LIMIT);
+}
+
+/** Everything this device sent to the event that is not hidden, newest first ("Meus envios"). */
+export function listOwnMedia(eventId: string, deviceId: string, limit = 60): Promise<Media[]> {
+  return getDb()
+    .select()
+    .from(media)
+    .where(
+      and(
+        eq(media.eventId, eventId),
+        eq(media.deviceId, deviceId),
+        inArray(media.status, ["uploading", "processing", "ready", "failed"]),
+      ),
+    )
+    .orderBy(desc(media.createdAt))
+    .limit(limit);
 }
 
 /** A media item of this event, or undefined for unknown or malformed ids. */
