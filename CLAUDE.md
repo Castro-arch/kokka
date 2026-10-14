@@ -129,6 +129,21 @@ SSE em `/api/e/{slug}/stream`. Worker publica no Redis (`event:{id}`) quando uma
 - Galeria renderizada no servidor, só thumbnails, lazy loading, paginação por cursor
 - Pouco JS na rota do convidado; testar em Safari iOS antigo e Android de entrada
 
+## Marca
+
+Cores da interface do Kokka (admin, telas do sistema). Logos e ícone em `.github/assets/` (README) e, a partir do passo 3, os ícones do app em `apps/web/src/app/` (convenção do Next).
+
+| Cor | Uso | Contraste com branco |
+|---|---|---|
+| `#FC123A` (vermelho da marca, medido no logo) | Logo, destaques, anel de foco | 3,97:1 |
+| `#D90F32` | Botões com texto branco | 5,17:1 |
+| `#BE0E2E` | Hover/ativo desses botões | 6,38:1 |
+
+- **`#FC123A` não serve para texto pequeno**: fica abaixo do AA (4,5:1) tanto com branco por cima quanto como texto sobre fundo branco. Em texto, só em tamanho grande (≥ 24 px, ou ≥ 18,66 px em negrito), onde o mínimo é 3:1. Para elementos que não são texto (foco, ícones, bordas), 3:1 basta.
+- Texto branco em fundo vermelho usa sempre `#D90F32`/`#BE0E2E`, nunca o `#FC123A`.
+- O **tema padrão dos eventos continua terracota** (`#c2703d`, `DEFAULT_THEME` em `@kokka/shared`); o vermelho é da marca Kokka, não dos eventos do cliente.
+- Hoje o admin ainda usa a terracota no token `--color-brand` (`apps/web/src/app/globals.css`); a troca para esta paleta entra no passo 3, junto com os ícones.
+
 ## Plano
 
 1. **Base**: monorepo, commitlint + husky + lint-staged + Changesets, Docker Compose local (postgres, redis), schema + migrations, `.env.example`, Dockerfiles de web e worker, healthcheck, CI no GitHub Actions (lint, typecheck, testes, validação de commits)
