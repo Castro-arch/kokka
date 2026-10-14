@@ -75,38 +75,38 @@ stateDiagram-v2
 
 ## Features
 
-| Area | What it does | Status |
-|---|---|---|
-| Admin | Email/password sign-in, server-side session guard | ✅ v0.2.0 |
-| Events | Create, edit, forward-only status (draft → active → closed) | ✅ v0.2.0 |
-| Branding | Primary color, 5 curated fonts, cover photo (auto-rotated, EXIF stripped) | ✅ v0.2.0 |
-| Print | QR code and 300 dpi A6 table card (PNG) | ✅ v0.2.0 |
-| Guest gallery | Browse, take or upload photos and videos, resumable uploads | 🔜 Step 3 |
-| Processing | Thumbnails, HEIC → JPEG, 720p MP4, original always kept | 🔜 Step 4 |
-| Venue screen | Full-screen loop, preload, offline-tolerant, hide/delete in real time | 🔜 Step 5 |
-| Lifecycle | 5-day retention, ZIP export, automatic cleanup, database backups | 🔜 Step 6 |
+| Area          | What it does                                                              | Status    |
+| ------------- | ------------------------------------------------------------------------- | --------- |
+| Admin         | Email/password sign-in, server-side session guard                         | ✅ v0.2.0 |
+| Events        | Create, edit, forward-only status (draft → active → closed)               | ✅ v0.2.0 |
+| Branding      | Primary color, 5 curated fonts, cover photo (auto-rotated, EXIF stripped) | ✅ v0.2.0 |
+| Print         | QR code and 300 dpi A6 table card (PNG)                                   | ✅ v0.2.0 |
+| Guest gallery | Browse, take or upload photos and videos, resumable uploads               | 🔜 Step 3 |
+| Processing    | Thumbnails, HEIC → JPEG, 720p MP4, original always kept                   | 🔜 Step 4 |
+| Venue screen  | Full-screen loop, preload, offline-tolerant, hide/delete in real time     | 🔜 Step 5 |
+| Lifecycle     | 5-day retention, ZIP export, automatic cleanup, database backups          | 🔜 Step 6 |
 
 ## Tech stack
 
-| Layer | Choice |
-|---|---|
-| Web | Next.js (App Router), Server Actions for admin mutations, Route Handlers for files, SSE and guest endpoints |
-| Data | PostgreSQL + Drizzle ORM |
-| Queue & realtime | Redis, BullMQ, pub/sub |
-| Storage | Cloudflare R2 in production, SeaweedFS locally (S3 API) |
-| Media | sharp, ffmpeg |
-| Auth | Better Auth (email + password, no public sign-up) |
-| UI | Tailwind CSS |
-| Tooling | pnpm workspaces, TypeScript strict, ESLint, Prettier, Vitest, commitlint, husky, Changesets |
-| Deploy | Docker Compose on a VPS via Coolify |
+| Layer            | Choice                                                                                                      |
+| ---------------- | ----------------------------------------------------------------------------------------------------------- |
+| Web              | Next.js (App Router), Server Actions for admin mutations, Route Handlers for files, SSE and guest endpoints |
+| Data             | PostgreSQL + Drizzle ORM                                                                                    |
+| Queue & realtime | Redis, BullMQ, pub/sub                                                                                      |
+| Storage          | Cloudflare R2 in production, SeaweedFS locally (S3 API)                                                     |
+| Media            | sharp, ffmpeg                                                                                               |
+| Auth             | Better Auth (email + password, no public sign-up)                                                           |
+| UI               | Tailwind CSS                                                                                                |
+| Tooling          | pnpm workspaces, TypeScript strict, ESLint, Prettier, Vitest, commitlint, husky, Changesets                 |
+| Deploy           | Docker Compose on a VPS via Coolify                                                                         |
 
 ## Project structure
 
-| Path | Package | Purpose |
-|---|---|---|
-| `apps/web` | `@kokka/web` | Admin panel, guest gallery, venue screen and API |
-| `apps/worker` | `@kokka/worker` | Media processing, exports and lifecycle jobs |
-| `packages/db` | `@kokka/db` | Drizzle schema, migrations and queries |
+| Path              | Package         | Purpose                                                   |
+| ----------------- | --------------- | --------------------------------------------------------- |
+| `apps/web`        | `@kokka/web`    | Admin panel, guest gallery, venue screen and API          |
+| `apps/worker`     | `@kokka/worker` | Media processing, exports and lifecycle jobs              |
+| `packages/db`     | `@kokka/db`     | Drizzle schema, migrations and queries                    |
 | `packages/shared` | `@kokka/shared` | Schemas, env validation, storage client, shared utilities |
 
 ## Development workflow
