@@ -4,6 +4,7 @@ import {
   resolveUploadMime,
   UPLOAD_PART_SIZE_BYTES,
   uploadPartCount,
+  uploadPartSize,
   uploadRequestSchema,
 } from "./uploads.ts";
 
@@ -54,6 +55,21 @@ describe("uploadRequestSchema", () => {
     expect(firstError({ type: "video/mp4", size: 1024 ** 3 + 1 })).toMatch(/1 GB/);
     expect(firstError({ type: "video/mp4", size: 10, durationMs: 180_001 })).toMatch(/3 minutos/);
     expect(firstError({ type: "image/png", size: 0 })).toMatch(/vazio/);
+  });
+});
+
+describe("uploadPartSize", () => {
+  it("is the full part size until the last part, which takes the rest", () => {
+    const size = 2 * UPLOAD_PART_SIZE_BYTES + 123;
+    expect(uploadPartSize(size, 1)).toBe(UPLOAD_PART_SIZE_BYTES);
+    expect(uploadPartSize(size, 2)).toBe(UPLOAD_PART_SIZE_BYTES);
+    expect(uploadPartSize(size, 3)).toBe(123);
+    expect(uploadPartSize(10, 1)).toBe(10);
+  });
+
+  it("refuses parts beyond the declared size", () => {
+    expect(() => uploadPartSize(10, 2)).toThrow(RangeError);
+    expect(() => uploadPartSize(10, 0)).toThrow(RangeError);
   });
 });
 

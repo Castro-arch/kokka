@@ -65,6 +65,20 @@ export function uploadPartCount(sizeBytes: number): number {
   return Math.max(1, Math.ceil(sizeBytes / UPLOAD_PART_SIZE_BYTES));
 }
 
+/**
+ * Exact size of a part: full parts, then the remainder. Signed into each part URL, so the stored
+ * original can never be larger than the size the guest declared.
+ */
+export function uploadPartSize(sizeBytes: number, partNumber: number): number {
+  const count = uploadPartCount(sizeBytes);
+  if (!Number.isInteger(partNumber) || partNumber < 1 || partNumber > count) {
+    throw new RangeError(`Part ${String(partNumber)} out of 1..${String(count)}`);
+  }
+  return partNumber < count
+    ? UPLOAD_PART_SIZE_BYTES
+    : sizeBytes - (count - 1) * UPLOAD_PART_SIZE_BYTES;
+}
+
 /** What a guest's browser sends to start an upload. Messages are shown to guests as is. */
 export const uploadRequestSchema = z
   .object({

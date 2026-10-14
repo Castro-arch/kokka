@@ -64,10 +64,12 @@ describe("presignMultipartRequest", () => {
         key: "k",
         uploadId: "u",
         partNumber: 2,
+        contentLength: 1000,
       }),
     );
     expect(url.searchParams.get("uploadId")).toBe("u");
     expect(url.searchParams.get("partNumber")).toBe("2");
+    expect(url.searchParams.get("X-Amz-SignedHeaders")?.split(";")).toContain("content-length");
   });
 });
 
@@ -133,10 +135,20 @@ describe.runIf(enabled)("storage round trip", () => {
     expect(created.status).toBe(200);
     const uploadId = xmlValue(await created.text(), "UploadId") ?? "";
 
-    const part = await fetch(
-      await storage.presignMultipartRequest({ op: "uploadPart", key, uploadId, partNumber: 1 }),
-      { method: "PUT", body },
-    );
+    const partUrl = await storage.presignMultipartRequest({
+      op: "uploadPart",
+      key,
+      uploadId,
+      partNumber: 1,
+      contentLength: body.length,
+    });
+    // A part of any other size than the signed one is refused.
+    const oversized = await fetch(partUrl, { method: "PUT", body: new Uint8Array(1024) });
+    expect(oversized.status).toBe(403);
+    await oversized.text();
+
+    const part = await fetch(partUrl, { method: "PUT", body });
+    expect(part.status).toBe(200);
     const etag = part.headers.get("etag") ?? "";
     const listed = await fetch(
       await storage.presignMultipartRequest({ op: "listParts", key, uploadId }),

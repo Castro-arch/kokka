@@ -36,7 +36,7 @@ export interface UploadedPart {
  */
 export type MultipartRequest =
   | { op: "create"; key: string; contentType: string }
-  | { op: "uploadPart"; key: string; uploadId: string; partNumber: number }
+  | { op: "uploadPart"; key: string; uploadId: string; partNumber: number; contentLength: number }
   | { op: "listParts" | "complete" | "abort"; key: string; uploadId: string };
 
 export function createStorage(env: StorageEnv) {
@@ -148,14 +148,16 @@ export function createStorage(env: StorageEnv) {
             { expiresIn, signableHeaders: new Set(["content-type"]) },
           );
         case "uploadPart":
+          // Signing Content-Length makes storage refuse a part of any other size.
           return getSignedUrl(
             client,
             new UploadPartCommand({
               ...target,
               UploadId: request.uploadId,
               PartNumber: request.partNumber,
+              ContentLength: request.contentLength,
             }),
-            { expiresIn },
+            { expiresIn, signableHeaders: new Set(["content-length"]) },
           );
         case "listParts":
           return getSignedUrl(
