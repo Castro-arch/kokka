@@ -129,6 +129,10 @@ SSE em `/api/e/{slug}/stream`. Worker publica no Redis (`event:{id}`) quando uma
 - Galeria renderizada no servidor, só thumbnails, lazy loading, paginação por cursor
 - Pouco JS na rota do convidado; testar em Safari iOS antigo e Android de entrada
 
+## Referência visual
+
+Os mockups em [`docs/design/`](docs/design/) (estilo Duolingo: telas do convidado — enviar, envio concluído, galeria — e a lista de eventos do admin) são a **referência visual do próximo passo de UI**. Não são código de produção. O sistema visual (fonte Nunito, botões 3D, cores, ícones SVG) está no [`docs/design/README.md`](docs/design/README.md); as "ideias novas" listadas lá (meta da festa, conquistas, checklist do rascunho) precisam ser decididas antes de implementar.
+
 ## Marca
 
 Cores da interface do Kokka (admin, telas do sistema). Logos e ícone em `.github/assets/` (README) e, a partir do passo 3, os ícones do app em `apps/web/src/app/` (convenção do Next).
