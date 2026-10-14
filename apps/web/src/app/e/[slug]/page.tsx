@@ -68,6 +68,9 @@ export default async function GuestEventPage({ params, searchParams }: PageProps
     isDeviceId(deviceId) && !cursor ? listOwnPending(event.id, deviceId) : Promise.resolve([]),
   ]);
 
+  // While the worker prepares them, the gallery tells the guest their uploads are coming.
+  const ownUploadsOnTheWay = ownPending.some((item) => item.status !== "failed");
+
   const tiles: GalleryTileItem[] = await Promise.all(
     gallery.items
       .filter((item): item is Media & { thumbKey: string } => item.thumbKey !== null)
@@ -111,9 +114,11 @@ export default async function GuestEventPage({ params, searchParams }: PageProps
           initial={tiles}
           live={!cursor}
           emptyMessage={
-            event.status === "active"
-              ? "Nenhuma foto ainda. Que tal enviar a primeira?"
-              : "Nenhuma foto neste evento."
+            ownUploadsOnTheWay
+              ? "Suas fotos aparecem aqui em instantes."
+              : event.status === "active"
+                ? "Nenhuma foto ainda. Que tal enviar a primeira?"
+                : "Nenhuma foto neste evento."
           }
         />
         {gallery.next && (
