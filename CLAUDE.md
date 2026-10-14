@@ -153,10 +153,14 @@ Cores da interface do Kokka (admin, telas do sistema). Logos e ícone em `.githu
 1. **Base**: monorepo, commitlint + husky + lint-staged + Changesets, Docker Compose local (postgres, redis), schema + migrations, `.env.example`, Dockerfiles de web e worker, healthcheck, CI no GitHub Actions (lint, typecheck, testes, validação de commits)
 2. **Admin**: login (Better Auth, seed do usuário), CRUD de eventos, personalização, geração do QR e arte para impressão
 3. **Convidado**: galeria `/e/{slug}`, upload multipart ao R2 com Uppy, registro da mídia, SSE
+
+3.5. **Redesign** (release MINOR próprio): visual de [`docs/design/`](docs/design/) no convidado (cabeçalho com mascote, botões grandes, progresso, "Enviados por você", tela de sucesso, galeria em mosaico, navegação inferior) e no admin (barra lateral, resumo em blocos, cards por status). Sem meta da festa, conquistas nem checklist do rascunho; sem mudar regras de upload, API ou banco.
+
 4. **Worker**: fila de processamento (thumb, HEIC→JPEG, MP4 720p), status e eventos realtime
 5. **Telão + gestão**: modo telão, ocultar/apagar com efeito imediato
 6. **Ciclo de vida**: encerrar, aviso de 24h, expiração e limpeza do R2, ZIP por streaming, backup diário do Postgres para o R2
 7. **Qualidade**: testes em aparelhos reais, teste de carga (~150 uploads simultâneos), monitoramento, evento piloto
+   - **Pendente do passo 3, obrigatório antes do primeiro evento**: teste do envio em celular real (iPhone e Android), que foi pulado no passo 3. Cobrir: câmera ("Tirar foto" e "Gravar vídeo"), vídeo grande (perto de 1 GB / 3 min, várias partes e retomada), HEIC e MOV de iPhone, e se o iOS converte HEIC para JPEG ao escolher da galeria.
 
 ## Fora da v1
 
