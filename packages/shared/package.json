@@ -8,7 +8,8 @@
     "./storage": "./src/storage.ts"
   },
   "scripts": {
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "s3-init": "node --env-file-if-exists=../../.env src/s3-init.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1150.0",
