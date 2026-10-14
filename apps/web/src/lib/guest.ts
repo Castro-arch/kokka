@@ -65,6 +65,37 @@ export async function listGallery(
   return { items, next: rows.length > pageSize && last ? encodeCursor(last) : undefined };
 }
 
+/** How many photos and videos the gallery shows. */
+export async function countGallery(eventId: string): Promise<{ images: number; videos: number }> {
+  const [counts] = await getDb()
+    .select({
+      images: sql<number>`count(*) filter (where ${media.kind} = 'image')::int`,
+      videos: sql<number>`count(*) filter (where ${media.kind} = 'video')::int`,
+    })
+    .from(media)
+    .where(and(eq(media.eventId, eventId), eq(media.status, "ready")));
+  return counts ?? { images: 0, videos: 0 };
+}
+
+/** Up to three letters for the event badge: "Ana & Pedro" → "A&P", "Bodas de Prata" → "BP". */
+export function eventInitials(name: string): string {
+  const pick = (part: string) =>
+    part
+      .split(/\s+/)
+      .filter((word) => word.length > 2 || /^[A-ZÀ-Ú]/.test(word))
+      .map((word) => word.charAt(0).toUpperCase());
+  const parts = name
+    .split("&")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (parts.length > 1)
+    return parts
+      .slice(0, 2)
+      .map((part) => pick(part)[0] ?? "")
+      .join("&");
+  return pick(name).slice(0, 2).join("") || name.charAt(0).toUpperCase();
+}
+
 /** This device's uploads that are not in the gallery yet (uploading, processing or failed). */
 export function listOwnPending(eventId: string, deviceId: string): Promise<Media[]> {
   return getDb()
