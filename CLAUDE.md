@@ -142,7 +142,7 @@ Cores da interface do Kokka (admin, telas do sistema). Logos e ícone em `.githu
 - **`#FC123A` não serve para texto pequeno**: fica abaixo do AA (4,5:1) tanto com branco por cima quanto como texto sobre fundo branco. Em texto, só em tamanho grande (≥ 24 px, ou ≥ 18,66 px em negrito), onde o mínimo é 3:1. Para elementos que não são texto (foco, ícones, bordas), 3:1 basta.
 - Texto branco em fundo vermelho usa sempre `#D90F32`/`#BE0E2E`, nunca o `#FC123A`.
 - O **tema padrão dos eventos continua terracota** (`#c2703d`, `DEFAULT_THEME` em `@kokka/shared`); o vermelho é da marca Kokka, não dos eventos do cliente.
-- Hoje o admin ainda usa a terracota no token `--color-brand` (`apps/web/src/app/globals.css`); a troca para esta paleta entra no passo 3, junto com os ícones.
+- Tokens em `apps/web/src/app/globals.css`: `brand` (`#FC123A`), `brand-strong` (`#D90F32`) e `brand-hover` (`#BE0E2E`); `.btn-primary` usa os dois últimos.
 
 ## Plano
 
