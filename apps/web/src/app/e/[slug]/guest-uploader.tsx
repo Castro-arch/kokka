@@ -44,6 +44,9 @@ export function GuestUploader({
 }: GuestUploaderProps) {
   const router = useRouter();
   const uppyRef = useRef<Promise<GuestUppy> | null>(null);
+  // List key until the server returns the media id. Not crypto.randomUUID: it only exists in
+  // secure contexts (missing on plain-http LAN testing) and on Safari 15.4+.
+  const localIds = useRef(0);
   const [items, setItems] = useState<Item[]>([]);
   const sending = items.some((item) => item.state === "sending");
 
@@ -130,7 +133,8 @@ export function GuestUploader({
   }
 
   async function send(file: File) {
-    const localId = crypto.randomUUID();
+    localIds.current += 1;
+    const localId = `local-${String(localIds.current)}`;
     setItems((current) => [
       { id: localId, name: file.name, percent: 0, state: "sending" },
       ...current,
