@@ -11,7 +11,7 @@ import { mkdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { createDb } from "@kokka/db";
-import { chromium, type Page } from "playwright";
+import { chromium, type Page, type WebSocketRoute } from "playwright";
 import { SHOTS_ADMIN, SHOTS_DATABASE, seedShots, type SeededIds } from "./seed.ts";
 
 const PORT = 3100;
@@ -168,6 +168,31 @@ async function compare(page: Page, name: string): Promise<void> {
   await page.screenshot({ path: `${implDir}compare/${name}.png`, fullPage: true });
 }
 
+/** HMR messages that make the dev client reload the whole page. */
+const RELOAD_MESSAGES = [
+  '"type":"restart"',
+  '"type":"reloadPage"',
+  '"type":"serverComponentChanges"',
+];
+
+/**
+ * Relays the dev HMR socket (Next 16, /_next/hmr) without the messages that reload the page.
+ * The client needs the socket to hydrate, so it cannot be dropped; but after a type generation or
+ * a formatter run the server keeps sending "restart" on every connection, and each reload opens a
+ * new connection, so the page never settles. Screenshots need no hot reload.
+ */
+function keepHmrWithoutReloads(ws: WebSocketRoute): void {
+  const server = ws.connectToServer();
+  server.onMessage((message) => {
+    const text = typeof message === "string" ? message : "";
+    if (RELOAD_MESSAGES.some((marker) => text.includes(marker))) return;
+    ws.send(message);
+  });
+  ws.onMessage((message) => {
+    server.send(message);
+  });
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const only = args.filter((arg) => !arg.startsWith("--"));
@@ -186,10 +211,7 @@ async function main(): Promise<void> {
   try {
     await waitForServer();
     const context = await browser.newContext({ locale: "pt-BR", reducedMotion: "reduce" });
-    // Screenshots need no hot reload. Without this, a watcher event (a type generation or a
-    // formatter run just before) makes the dev client reload the page in a loop.
-    // Next 16 serves it at /_next/hmr; older versions used /_next/webpack-hmr.
-    await context.routeWebSocket(/\/_next\/(webpack-)?hmr/, () => undefined);
+    await context.routeWebSocket(/\/_next\/(webpack-)?hmr/, keepHmrWithoutReloads);
     const signIn = await context.request.post(`${BASE_URL}/api/auth/sign-in/email`, {
       headers: { origin: BASE_URL },
       data: { email: SHOTS_ADMIN.email, password: SHOTS_ADMIN.password },
