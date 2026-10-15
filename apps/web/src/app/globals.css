@@ -13,8 +13,11 @@
 
   --color-ink: #1f2430;
   --color-ink-soft: #4b5263;
+  --color-ink-mute: #6b7280;
   --color-block: #f4f5f8;
   --color-line: #e3e5eb;
+  --color-line-strong: #c9cdd6;
+  --color-line-dash: #b9beca;
 
   --color-active: #ffe8ec;
   --color-active-line: #f3a6b4;
@@ -25,6 +28,31 @@
   --color-sun-soft: #fff6d6;
   --color-sun-line: #f2d27a;
   --color-sun-text: #5a4300;
+
+  --color-ok: #10a34a;
+  --color-ok-edge: #0b7a37;
+  --color-ok-soft: #e6f7ee;
+  --color-ok-line: #9bd8b5;
+  --color-ok-text: #0b5a2a;
+
+  /* Admin sidebar (docs/design/admin/SPEC.md): background, user chip, items, e-mail. */
+  --color-side: #1f2430;
+  --color-side-chip: #2b313f;
+  --color-side-text: #d5d8e0;
+  --color-side-mute: #b8bdc9;
+
+  /* Projector preview and the bulk bar sit on a near-black stage with a black edge. */
+  --color-stage: #12151c;
+  --color-stage-edge: #000000;
+
+  /* Pastel placeholders for media without a thumbnail yet; tile-ink is the icon on top. */
+  --color-tile-rose: #ffd7de;
+  --color-tile-sky: #cfe9ff;
+  --color-tile-peach: #ffe3b8;
+  --color-tile-mint: #dcefd9;
+  --color-tile-lilac: #e8deff;
+  --color-tile-lemon: #fff1c2;
+  --color-tile-ink: #6b4300;
 }
 
 @layer base {
@@ -33,6 +61,22 @@
   select,
   textarea {
     font-family: inherit;
+  }
+
+  /* One visible focus for every control; brand-strong keeps 3:1 on white and on the sidebar. */
+  :focus-visible {
+    outline: 3px solid var(--color-brand-strong);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
   }
 }
 
