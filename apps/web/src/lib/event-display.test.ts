@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   calendarDaysUntil,
   daysUntil,
+  eventInitials,
+  formatDayMonthTime,
   formatEventWhen,
   resolveTheme,
   startOfEventDay,
@@ -60,5 +62,25 @@ describe("calendarDaysUntil", () => {
 
   it("is negative for past days", () => {
     expect(calendarDaysUntil(new Date("2026-10-11T22:00:00Z"), now)).toBe(-3);
+  });
+});
+
+describe("formatDayMonthTime", () => {
+  it("joins day and hour in the event timezone", () => {
+    expect(formatDayMonthTime(new Date("2026-10-15T06:00:00Z"))).toBe("15/10, 3h");
+    expect(formatDayMonthTime(new Date("2026-10-15T02:30:00Z"))).toBe("14/10, 23h30");
+  });
+});
+
+describe("eventInitials", () => {
+  it.each([
+    ["Ana & Pedro", "A&P"],
+    ["Bodas de Prata", "BP"],
+    ["15 anos da Júlia", "15A"],
+    ["Formatura Med 2026", "FM"],
+    ["casamento", "C"],
+    ["  ", "?"],
+  ])("%s → %s", (name, initials) => {
+    expect(eventInitials(name)).toBe(initials);
   });
 });

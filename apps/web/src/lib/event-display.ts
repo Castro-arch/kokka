@@ -89,3 +89,27 @@ export function calendarDaysUntil(date: Date, now = new Date()): number {
   // DST shifts make a day 23 or 25 hours long; rounding keeps the count whole.
   return Math.round(days);
 }
+
+/** "15/10, 3h": a day and an hour in the event timezone. */
+export function formatDayMonthTime(date: Date): string {
+  return `${formatDayMonth(date)}, ${shortTime(date)}`;
+}
+
+const CONNECTORS = new Set(["a", "e", "o", "da", "de", "do", "das", "dos"]);
+
+/**
+ * Up to three characters for the event avatar: "Ana & Pedro" → "A&P", "Bodas de Prata" → "BP",
+ * "15 anos da Júlia" → "15A". Numbers stay whole; connectors are skipped.
+ */
+export function eventInitials(name: string): string {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  const amp = words.indexOf("&");
+  if (amp > 0 && amp < words.length - 1) {
+    return `${words[amp - 1]?.charAt(0) ?? ""}&${words[amp + 1]?.charAt(0) ?? ""}`.toUpperCase();
+  }
+  const marks = words
+    .filter((word) => !CONNECTORS.has(word.toLowerCase()) && word !== "&")
+    .slice(0, 2)
+    .map((word) => (/^\d+$/.test(word) ? word : word.charAt(0)));
+  return marks.join("").slice(0, 3).toUpperCase() || "?";
+}

@@ -22,7 +22,8 @@ export function StatTile({
   return (
     <div className="flex flex-col rounded-[20px] border-2 border-b-[5px] border-line bg-white px-4 py-3.5">
       <span className="text-[30px] font-black">{value}</span>
-      <span className="text-sm font-extrabold text-ink-soft">{label}</span>
+      {/* 22px: the mockup sets this label inline in a 16px line. */}
+      <span className="text-sm leading-[22px] font-extrabold text-ink-soft">{label}</span>
     </div>
   );
 }

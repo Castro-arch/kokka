@@ -1,5 +1,5 @@
 import "server-only";
-import { inArray, media, sql } from "@kokka/db";
+import { and, eq, inArray, media, sql } from "@kokka/db";
 import { getDb } from "./db";
 
 /** What the admin shows about an event's uploads (hero, event page, trail). */
@@ -24,8 +24,11 @@ export const EMPTY_STATS: EventStats = {
 /** Media guests sent and that made it to storage (on their way to or in the gallery). */
 const RECEIVED = inArray(media.status, ["processing", "ready", "hidden"]);
 
-/** Stats of every event in a single aggregated query; events without uploads are absent. */
-export async function statsByEvent(): Promise<Map<string, EventStats>> {
+/**
+ * Stats of every event (or only `eventId`) in a single aggregated query; events without uploads
+ * are absent from the map.
+ */
+export async function statsByEvent(eventId?: string): Promise<Map<string, EventStats>> {
   const rows = await getDb()
     .select({
       eventId: media.eventId,
@@ -36,7 +39,7 @@ export async function statsByEvent(): Promise<Map<string, EventStats>> {
       lastUploadAt: sql<string | null>`max(${media.createdAt})`,
     })
     .from(media)
-    .where(RECEIVED)
+    .where(eventId ? and(RECEIVED, eq(media.eventId, eventId)) : RECEIVED)
     .groupBy(media.eventId);
   return new Map(
     rows.map(({ eventId, lastUploadAt, ...counts }) => [
