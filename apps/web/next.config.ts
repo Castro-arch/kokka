@@ -20,6 +20,8 @@ const lanHost = appUrl && URL.canParse(appUrl) ? new URL(appUrl).hostname : unde
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: lanHost ? [lanHost] : [],
+  // design:shots runs its own dev server next to `pnpm dev:web`; each needs its own build folder.
+  distDir: process.env.NEXT_DIST_DIR ?? ".next",
   output: "standalone",
   // Trace files from the monorepo root so the standalone build includes workspace packages.
   outputFileTracingRoot: repoRoot,
