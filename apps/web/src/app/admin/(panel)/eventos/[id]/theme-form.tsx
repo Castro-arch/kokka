@@ -4,7 +4,7 @@ import { FONT_OPTIONS, type FontKey } from "@kokka/shared";
 import { startTransition, useActionState, useState } from "react";
 import { Button } from "@/components/admin/button";
 import { ColorSwatches } from "@/components/admin/color-swatches";
-import { readableTextColor } from "@/lib/color";
+import { EventPreview } from "@/components/admin/event-preview";
 import type { FormState } from "@/lib/form";
 
 interface ThemeFormProps {
@@ -33,13 +33,12 @@ export function ThemeForm({ action, initial, fontClassNames, preview }: ThemeFor
       }}
       className="flex flex-col gap-5 rounded-[22px] border-2 border-b-[6px] border-line bg-white p-4.5 sm:p-6"
     >
-      <div
-        className="rounded-[18px] px-6 py-8 text-center"
-        style={{ backgroundColor: color, color: readableTextColor(color) }}
-      >
-        <p className={`text-3xl font-bold ${fontClassNames[font]}`}>{preview.name}</p>
-        {preview.subtitle && <p className={`mt-1 ${fontClassNames[font]}`}>{preview.subtitle}</p>}
-      </div>
+      <EventPreview
+        name={preview.name}
+        subtitle={preview.subtitle}
+        color={color}
+        fontClassName={fontClassNames[font]}
+      />
 
       <div>
         <ColorSwatches

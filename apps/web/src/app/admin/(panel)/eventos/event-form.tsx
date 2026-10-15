@@ -7,11 +7,18 @@ import type { FormState } from "@/lib/form";
 
 interface EventFormProps {
   action: (state: FormState | null, form: FormData) => Promise<FormState>;
+  /** Called as the name or subtitle is typed, for a live preview next to the form. */
+  onTextChange?: (field: "name" | "subtitle", value: string) => void;
   initialValues?: Record<string, string>;
   submitLabel: string;
 }
 
-export function EventForm({ action, initialValues = {}, submitLabel }: EventFormProps) {
+export function EventForm({
+  action,
+  onTextChange,
+  initialValues = {},
+  submitLabel,
+}: EventFormProps) {
   const [state, formAction, pending] = useActionState(action, null);
   const values = state?.values ?? initialValues;
   const errors = state?.errors ?? {};
@@ -26,18 +33,21 @@ export function EventForm({ action, initialValues = {}, submitLabel }: EventForm
           name="name"
           required
           maxLength={120}
+          placeholder="Ex.: Ana & Pedro"
+          onChange={(event) => onTextChange?.("name", event.target.value)}
           defaultValue={values.name}
           className={fieldClassName}
         />
       </Field>
       <Field
         label="Subtítulo (opcional)"
-        hint="Ex.: 21 de novembro de 2026"
+        hint="Ex.: Casamento · 21 de novembro"
         error={errors.subtitle}
       >
         <input
           name="subtitle"
           maxLength={160}
+          onChange={(event) => onTextChange?.("subtitle", event.target.value)}
           defaultValue={values.subtitle}
           className={fieldClassName}
         />
