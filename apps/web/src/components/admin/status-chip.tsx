@@ -13,7 +13,7 @@ export function StatusChip({ status }: { status: EventStatus }) {
   const tone = TONES[status];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border-2 px-2.5 py-1 text-[13px] leading-none font-black ${tone.chip}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border-2 px-2.5 py-1 text-[13px] font-black ${tone.chip}`}
     >
       <span aria-hidden="true" className={`h-2 w-2 rounded-full ${tone.dot}`} />
       {STATUS_LABELS[status]}

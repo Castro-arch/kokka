@@ -72,6 +72,14 @@
     outline-offset: 3px;
   }
 
+  /* The admin mockups set text with the browser's normal line height (about 1.36 in Nunito);
+     Tailwind's text sizes bring taller defaults. Leading utilities still win where set. */
+  .admin-ui,
+  .admin-ui * {
+    --tw-leading: normal;
+    line-height: normal;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

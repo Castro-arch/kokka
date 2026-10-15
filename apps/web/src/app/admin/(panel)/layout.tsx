@@ -13,7 +13,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const events = await listEvents();
 
   return (
-    <div className="flex min-h-dvh flex-col bg-block wide:flex-row">
+    <div className="admin-ui flex min-h-dvh flex-col bg-block wide:flex-row">
       <AdminSidebar
         user={{ name: user.name, email: user.email }}
         fallbackEventId={pickContextEvent(events)}

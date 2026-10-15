@@ -14,14 +14,14 @@ export function StatTile({
   if (tone === "on-brand") {
     return (
       <div className="flex flex-col rounded-[18px] bg-white/14 px-4 py-3.5">
-        <span className="text-[34px] leading-tight font-black">{value}</span>
+        <span className="text-[34px] font-black">{value}</span>
         <span className="text-[15px] font-extrabold">{label}</span>
       </div>
     );
   }
   return (
     <div className="flex flex-col rounded-[20px] border-2 border-b-[5px] border-line bg-white px-4 py-3.5">
-      <span className="text-[30px] leading-tight font-black">{value}</span>
+      <span className="text-[30px] font-black">{value}</span>
       <span className="text-sm font-extrabold text-ink-soft">{label}</span>
     </div>
   );

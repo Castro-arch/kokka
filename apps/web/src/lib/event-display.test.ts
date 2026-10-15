@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { daysUntil, formatEventWhen, resolveTheme, startOfEventDay } from "./event-display";
+import {
+  calendarDaysUntil,
+  daysUntil,
+  formatEventWhen,
+  resolveTheme,
+  startOfEventDay,
+} from "./event-display";
 
 describe("resolveTheme", () => {
   it("fills in defaults for an empty theme", () => {
@@ -39,5 +45,20 @@ describe("daysUntil", () => {
     const now = new Date("2026-11-10T12:00:00Z");
     expect(daysUntil(new Date("2026-11-13T11:00:00Z"), now)).toBe(3);
     expect(daysUntil(new Date("2026-11-01T00:00:00Z"), now)).toBe(0);
+  });
+});
+
+describe("calendarDaysUntil", () => {
+  // 22:30 in São Paulo: still 14/10 there, already 15/10 in UTC.
+  const now = new Date("2026-10-15T01:30:00Z");
+
+  it("counts calendar days in the event timezone, not 24-hour blocks", () => {
+    expect(calendarDaysUntil(new Date("2026-10-15T02:30:00Z"), now)).toBe(0);
+    expect(calendarDaysUntil(new Date("2026-10-15T12:00:00Z"), now)).toBe(1);
+    expect(calendarDaysUntil(new Date("2026-11-29T22:00:00Z"), now)).toBe(46);
+  });
+
+  it("is negative for past days", () => {
+    expect(calendarDaysUntil(new Date("2026-10-11T22:00:00Z"), now)).toBe(-3);
   });
 });

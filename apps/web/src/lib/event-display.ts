@@ -54,8 +54,13 @@ const hourMinute = new Intl.DateTimeFormat("pt-BR", {
   hourCycle: "h23",
 });
 
+/** "29/11", in the event timezone. */
+export function formatDayMonth(date: Date): string {
+  return dayMonth.format(date);
+}
+
 /** "19h" or "19h30", in the event timezone. */
-function shortTime(date: Date): string {
+export function shortTime(date: Date): string {
   const [hour, minute] = hourMinute.format(date).split(":");
   return minute === "00" ? `${hour ?? ""}h` : `${hour ?? ""}h${minute ?? ""}`;
 }
@@ -76,4 +81,11 @@ export function startOfEventDay(now = new Date()): Date {
 /** Whole days left until `date`, never negative. */
 export function daysUntil(date: Date, now = new Date()): number {
   return Math.max(0, Math.ceil((date.getTime() - now.getTime()) / 86_400_000));
+}
+
+/** Calendar days from today to `date` in the event timezone (0 = today, negative = past). */
+export function calendarDaysUntil(date: Date, now = new Date()): number {
+  const days = (startOfEventDay(date).getTime() - startOfEventDay(now).getTime()) / 86_400_000;
+  // DST shifts make a day 23 or 25 hours long; rounding keeps the count whole.
+  return Math.round(days);
 }

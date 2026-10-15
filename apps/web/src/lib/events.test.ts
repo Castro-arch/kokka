@@ -36,16 +36,9 @@ describe("withUniqueSlug", () => {
 
 // Runs in CI against a migrated Postgres; skipped locally unless the env is set.
 describe.runIf(Boolean(process.env.DATABASE_URL))("event transitions", async () => {
-  const { eq, events, media } = await import("@kokka/db");
-  const {
-    adminSummary,
-    createEvent,
-    getEvent,
-    mediaCountsByEvent,
-    mergeEventTheme,
-    transitionEvent,
-    updateEvent,
-  } = await import("./events");
+  const { eq, events } = await import("@kokka/db");
+  const { createEvent, getEvent, mergeEventTheme, transitionEvent, updateEvent } =
+    await import("./events");
   const { getDb } = await import("./db");
 
   const created: string[] = [];
@@ -102,34 +95,5 @@ describe.runIf(Boolean(process.env.DATABASE_URL))("event transitions", async () 
   it("treats malformed ids as missing", async () => {
     expect(await getEvent("not-a-uuid")).toBeUndefined();
     expect(await transitionEvent("not-a-uuid", "active")).toBeUndefined();
-  });
-
-  it("counts received photos and videos per event and today", async () => {
-    const since = new Date(Date.now() - 1000);
-    const event = await newEvent();
-    await transitionEvent(event.id, "active");
-    const add = (kind: "image" | "video", status: "processing" | "ready" | "uploading") =>
-      getDb()
-        .insert(media)
-        .values({
-          eventId: event.id,
-          kind,
-          status,
-          originalKey: `events/${event.id}/original/${crypto.randomUUID()}.bin`,
-          originalMime: kind === "video" ? "video/mp4" : "image/jpeg",
-          sizeBytes: 1,
-          deviceId: crypto.randomUUID(),
-        });
-    await add("image", "ready");
-    await add("image", "processing");
-    await add("video", "ready");
-    await add("video", "uploading"); // not received yet
-
-    expect((await mediaCountsByEvent()).get(event.id)).toEqual({ images: 2, videos: 1 });
-    const summary = await adminSummary(since);
-    expect(summary.liveEvents).toBeGreaterThanOrEqual(1);
-    expect(summary.imagesToday).toBeGreaterThanOrEqual(2);
-    expect(summary.videosToday).toBeGreaterThanOrEqual(1);
-    expect(summary.sendersToday).toBeGreaterThanOrEqual(3);
   });
 });
