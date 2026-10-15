@@ -44,6 +44,7 @@ const SCREENS: Screen[] = [
     },
   },
   { name: "telao", path: (ids) => `/admin/eventos/${ids.live}/telao` },
+  { name: "telao-vazio", path: (ids) => `/admin/eventos/${ids.draft}/telao` },
   {
     name: "midias",
     path: (ids) => `/admin/eventos/${ids.live}/midias`,
