@@ -44,7 +44,7 @@ Converta em tema do Tailwind (`@theme` em `globals.css`) e **nunca** use hex sol
 
 ## Regras por tela
 
-- **Layout**: lateral fixa de 248px, escura, ocupando a altura toda (`min-h-dvh` e `sticky top-0`). Conteúdo com `max-w-[1200px] mx-auto` e padding lateral `clamp(16px, 4vw, 44px)`. Abaixo de 900px a lateral vira uma barra superior com menu.
+- **Layout**: lateral fixa de 256px, escura, ocupando a altura toda (`min-h-dvh` e `sticky top-0`). Conteúdo com `max-w-[1200px] mx-auto` e padding lateral `clamp(16px, 4vw, 44px)`. Abaixo de 900px a lateral vira uma barra superior com menu.
 - **Eventos**: a saudação do mascote usa dados reais (próximo evento e dias que faltam). O `LiveHero` só aparece se existir evento `active`; sem ele, mostre um cartão vazio com o mascote e "Novo evento". A trilha vai do próximo para o mais antigo, com nós alternando esquerda e direita **em cima** da linha tracejada, e os textos nunca podem encostar nos nós. Formas dos nós: rascunho tracejado com lápis, ativo vermelho com selo HOJE, encerrado amarelo com download, expirado cinza com check.
 - **Evento**: capa na cor do tema do evento (`theme.primaryColor`), abas Visão geral / Personalização / QR e arte (as telas atuais de tema e arte viram abas), `LifecycleSteps` com datas reais (`closed_at`, `expires_at`), QR real gerado com `qrcode` (já está na stack).
 - **Telão**: prévia 16:9 limitada pela coluna (os controles precisam aparecer sem rolar em 1280×800). Botões grandes Pausar / Pular / Ocultar esta.

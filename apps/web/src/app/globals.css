@@ -6,6 +6,9 @@
 @theme {
   --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
 
+  /* The admin sidebar turns into a top bar below this width (docs/design/admin/SPEC.md). */
+  --breakpoint-wide: 900px;
+
   --color-brand: #fc123a;
   --color-brand-strong: #d90f32;
   --color-brand-dark: #be0e2e;
