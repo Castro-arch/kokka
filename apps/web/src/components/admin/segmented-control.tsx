@@ -1,3 +1,5 @@
+import { SoonTag } from "@/components/admin/soon";
+
 export interface SegmentOption {
   value: string;
   label: string;
@@ -23,12 +25,11 @@ export function SegmentedControl({
   className?: string;
 }) {
   return (
-    <fieldset
-      disabled={soon}
-      title={soon ? "Em breve" : undefined}
-      className={`min-w-0 ${className}`}
-    >
-      <legend className="mb-2 text-[15px] font-black">{label}</legend>
+    <fieldset disabled={soon} className={`min-w-0 ${className}`}>
+      <legend className="mb-2 text-[15px] font-black">
+        {label}
+        {soon && <SoonTag />}
+      </legend>
       <div
         className="grid gap-2"
         style={{ gridTemplateColumns: `repeat(${String(options.length)}, minmax(0, 1fr))` }}
@@ -42,7 +43,7 @@ export function SegmentedControl({
               defaultChecked={option.value === defaultValue}
               className="peer sr-only"
             />
-            <span className="flex h-[46px] cursor-pointer items-center justify-center rounded-[14px] border-2 border-b-4 border-line bg-white text-[15px] font-black text-ink peer-checked:border-active-line peer-checked:bg-active peer-checked:text-brand-edge peer-focus-visible:outline-3 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-brand-strong peer-disabled:cursor-not-allowed">
+            <span className="flex h-[46px] cursor-pointer items-center justify-center rounded-[14px] border-2 border-b-4 border-line bg-white text-[15px] font-black text-ink peer-checked:border-active-line peer-checked:bg-active peer-checked:text-brand-edge peer-focus-visible:outline-3 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-brand-strong peer-disabled:cursor-not-allowed peer-disabled:opacity-55">
               {option.label}
             </span>
           </label>

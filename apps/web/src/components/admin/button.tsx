@@ -1,12 +1,13 @@
 import Link from "next/link";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { useId, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { SOON_CONTROL, SoonPill } from "@/components/admin/soon";
 
 export type ButtonVariant = "primary" | "sun" | "outline" | "ghost-on-brand";
 export type ButtonSize = "md" | "lg";
 
 /** Chunky block buttons (docs/design/admin): a darker bottom edge that flattens when pressed. */
 const BASE =
-  "inline-flex shrink-0 items-center justify-center gap-2.5 font-black no-underline transition-[background-color,transform,border-width] active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-55 disabled:active:translate-y-0";
+  "inline-flex shrink-0 items-center justify-center gap-2.5 font-black no-underline transition-[background-color,transform,border-width] active:translate-y-0.5 disabled:cursor-not-allowed disabled:active:translate-y-0";
 
 const SIZES: Record<ButtonSize, string> = {
   md: "h-[50px] rounded-2xl px-5 text-base border-b-[5px] active:border-b-[3px]",
@@ -24,12 +25,22 @@ export function buttonClassName({
   variant = "primary",
   size = "md",
   className = "",
+  inert = false,
 }: {
   variant?: ButtonVariant;
   size?: ButtonSize;
   className?: string;
+  /** No hover or press feedback, for controls that do nothing yet. */
+  inert?: boolean;
 } = {}): string {
-  return `${BASE} ${SIZES[size]} ${VARIANTS[variant]} ${className}`;
+  const classes = `${BASE} ${SIZES[size]} ${VARIANTS[variant]}`;
+  const base = inert
+    ? classes
+        .split(" ")
+        .filter((name) => !name.startsWith("hover:") && !name.includes("active:"))
+        .join(" ")
+    : classes;
+  return `${base} ${className}`;
 }
 
 interface CommonProps {
@@ -41,8 +52,10 @@ interface CommonProps {
 
 type ButtonProps = CommonProps &
   Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className" | "children"> & {
-    /** Feature without a backend yet: visible but disabled, with "Em breve" as its hint. */
+    /** Feature without a backend yet: visible but inert, with an "Em breve" pill (see soon.tsx). */
     soon?: boolean;
+    /** Classes for the wrapper that carries the "Em breve" pill (e.g. width). */
+    soonClassName?: string;
   };
 
 export function Button({
@@ -50,18 +63,43 @@ export function Button({
   size,
   className,
   soon = false,
+  soonClassName,
   type = "button",
   disabled,
-  title,
   children,
   ...props
 }: ButtonProps) {
+  const soonId = useId();
+  if (soon) {
+    return (
+      <SoonPill id={soonId} className={soonClassName}>
+        <button
+          type="button"
+          aria-disabled="true"
+          aria-describedby={soonId}
+          className={buttonClassName({
+            variant,
+            size,
+            inert: true,
+            className: `${SOON_CONTROL} ${className ?? ""}`,
+          })}
+          {...props}
+          onClick={undefined}
+        >
+          {children}
+        </button>
+      </SoonPill>
+    );
+  }
   return (
     <button
       type={type}
-      disabled={soon || disabled}
-      title={soon ? "Em breve" : title}
-      className={buttonClassName({ variant, size, className })}
+      disabled={disabled}
+      className={buttonClassName({
+        variant,
+        size,
+        className: `disabled:opacity-55 ${className ?? ""}`,
+      })}
       {...props}
     >
       {children}

@@ -2,6 +2,7 @@
 
 import { THEME_COLOR_PRESETS } from "@kokka/shared";
 import { useId, useState } from "react";
+import { SoonTag } from "@/components/admin/soon";
 import { CheckIcon, PlusIcon } from "@/components/icons";
 import { darken, readableTextColor } from "@/lib/color";
 
@@ -40,10 +41,13 @@ export function ColorSwatches({
     "peer-checked:shadow-[0_0_0_3px_var(--color-white),0_0_0_6px_var(--color-ink)] peer-focus-visible:outline-3 peer-focus-visible:outline-offset-[9px] peer-focus-visible:outline-brand-strong";
 
   return (
-    <fieldset disabled={soon} title={soon ? "Em breve" : undefined} className="min-w-0">
-      <legend className="mb-2 text-[15px] font-black">{label}</legend>
+    <fieldset disabled={soon} className={`min-w-0 ${soon ? "[&_label]:cursor-not-allowed" : ""}`}>
+      <legend className="mb-2 text-[15px] font-black">
+        {label}
+        {soon && <SoonTag />}
+      </legend>
       <input type="hidden" name={name} value={color} />
-      <div className="flex flex-wrap items-center gap-2.5">
+      <div className={`flex flex-wrap items-center gap-2.5 ${soon ? "opacity-55" : ""}`}>
         {THEME_COLOR_PRESETS.map((preset) => (
           <label key={preset.color} className="relative cursor-pointer" title={preset.label}>
             <input

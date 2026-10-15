@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CheckIcon, DownloadIcon, MonitorIcon, PencilIcon } from "@/components/icons";
+import { SOON_CONTROL, SoonDot } from "@/components/admin/soon";
 import type { TrailItem } from "@/lib/event-trail";
 
 /**
@@ -107,15 +108,17 @@ function NodeShape({ item }: { item: TrailItem }) {
       );
     case "closed":
       return (
-        <button
-          type="button"
-          disabled
-          title="Em breve"
-          aria-label={`Baixar ZIP de ${item.name}`}
-          className="flex h-16 w-16 cursor-not-allowed items-center justify-center rounded-full border-b-[6px] border-sun-edge bg-sun text-sun-ink wide:h-22 wide:w-22 wide:border-b-8"
-        >
-          <DownloadIcon className="h-7 w-7 wide:h-9 wide:w-9" strokeWidth={2.6} />
-        </button>
+        <SoonDot id={`soon-zip-${item.id}`} round>
+          <button
+            type="button"
+            aria-disabled="true"
+            aria-describedby={`soon-zip-${item.id}`}
+            aria-label={`Baixar ZIP de ${item.name}`}
+            className={`${SOON_CONTROL} flex h-16 w-16 items-center justify-center rounded-full border-b-[6px] border-sun-edge bg-sun text-sun-ink wide:h-22 wide:w-22 wide:border-b-8`}
+          >
+            <DownloadIcon className="h-7 w-7 wide:h-9 wide:w-9" strokeWidth={2.6} />
+          </button>
+        </SoonDot>
       );
     case "expired":
       return (
