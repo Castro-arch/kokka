@@ -104,10 +104,13 @@ export async function seedShots(databaseUrl: string, now = new Date()): Promise<
     await seedAdmin(db, SHOTS_ADMIN);
 
     const liveStart = lastSevenPm(now);
-    const draftStart = daysFrom(liveStart, 46);
+    // Counted from today (not from the live start), so the trail says "faltam 46 dias".
+    const todayAtSeven = new Date(now);
+    todayAtSeven.setHours(19, 0, 0, 0);
+    const draftStart = daysFrom(todayAtSeven, 46);
     const closedStart = daysFrom(liveStart, -3);
     const closedAt = daysFrom(liveStart, -2);
-    const expiredStart = daysFrom(liveStart, -25);
+    const expiredStart = daysFrom(liveStart, -24);
 
     const rows: NewEvent[] = [
       {
