@@ -16,13 +16,6 @@ export const STATUS_LABELS: Record<EventStatus, string> = {
   expired: "Expirado",
 };
 
-export const STATUS_BADGE_CLASSES: Record<EventStatus, string> = {
-  draft: "bg-stone-100 text-stone-700",
-  active: "bg-green-100 text-green-800",
-  closed: "bg-amber-100 text-amber-800",
-  expired: "bg-red-100 text-red-800",
-};
-
 const dateTimeFormat = new Intl.DateTimeFormat("pt-BR", {
   timeZone: EVENT_TIMEZONE,
   dateStyle: "short",
@@ -63,13 +56,6 @@ export function formatDayMonth(date: Date): string {
 export function shortTime(date: Date): string {
   const [hour, minute] = hourMinute.format(date).split(":");
   return minute === "00" ? `${hour ?? ""}h` : `${hour ?? ""}h${minute ?? ""}`;
-}
-
-/** When an event happens, for its card: "15/11 · 19h às 3h". */
-export function formatEventWhen(startsAt: Date | null, endsAt: Date | null): string {
-  if (!startsAt) return "Sem data";
-  const start = `${dayMonth.format(startsAt)} · ${shortTime(startsAt)}`;
-  return endsAt ? `${start} às ${shortTime(endsAt)}` : start;
 }
 
 /** "Dia de hoje" in the event timezone, as the instant it started. */

@@ -4,7 +4,6 @@ import {
   daysUntil,
   eventInitials,
   formatDayMonthTime,
-  formatEventWhen,
   resolveTheme,
   startOfEventDay,
 } from "./event-display";
@@ -20,17 +19,6 @@ describe("resolveTheme", () => {
       font: "playfair",
     });
     expect(resolveTheme({ font: "comic-sans" }).font).toBe("inter");
-  });
-});
-
-describe("formatEventWhen", () => {
-  it("shows the day and the hours in the event timezone", () => {
-    // 19:00 to 03:00 in São Paulo (UTC−3).
-    expect(
-      formatEventWhen(new Date("2026-11-15T22:00:00Z"), new Date("2026-11-16T06:00:00Z")),
-    ).toBe("15/11 · 19h às 3h");
-    expect(formatEventWhen(new Date("2026-11-15T22:30:00Z"), null)).toBe("15/11 · 19h30");
-    expect(formatEventWhen(null, null)).toBe("Sem data");
   });
 });
 
