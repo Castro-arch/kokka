@@ -188,7 +188,8 @@ async function main(): Promise<void> {
     const context = await browser.newContext({ locale: "pt-BR", reducedMotion: "reduce" });
     // Screenshots need no hot reload. Without this, a watcher event (a type generation or a
     // formatter run just before) makes the dev client reload the page in a loop.
-    await context.routeWebSocket(/\/_next\/webpack-hmr/, () => undefined);
+    // Next 16 serves it at /_next/hmr; older versions used /_next/webpack-hmr.
+    await context.routeWebSocket(/\/_next\/(webpack-)?hmr/, () => undefined);
     const signIn = await context.request.post(`${BASE_URL}/api/auth/sign-in/email`, {
       headers: { origin: BASE_URL },
       data: { email: SHOTS_ADMIN.email, password: SHOTS_ADMIN.password },
