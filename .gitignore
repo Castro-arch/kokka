@@ -3,7 +3,6 @@ node_modules/
 
 # build output
 .next/
-.next-shots/
 out/
 dist/
 *.tsbuildinfo

@@ -84,8 +84,9 @@ function startNext(databaseUrl: string): ChildProcess {
       ...process.env,
       DATABASE_URL: databaseUrl,
       APP_URL: BASE_URL,
-      // Own build folder, so it runs next to a `pnpm dev:web` without fighting over .next.
-      NEXT_DIST_DIR: ".next-shots",
+      // Own build folder inside .next (which the dev watcher ignores; a sibling folder would make
+      // every build write trigger a reload), so it runs next to `pnpm dev:web` without conflicts.
+      NEXT_DIST_DIR: ".next/shots",
     },
     stdio: ["ignore", "inherit", "inherit"],
   });
