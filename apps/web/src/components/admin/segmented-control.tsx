@@ -1,4 +1,4 @@
-import { SoonTag } from "@/components/admin/soon";
+import { SoonTag, type SoonProps } from "@/components/admin/soon";
 
 export interface SegmentOption {
   value: string;
@@ -15,20 +15,25 @@ export function SegmentedControl({
   options,
   defaultValue,
   soon = false,
+  hideBadge = false,
+  describedBy,
   className = "",
-}: {
+}: SoonProps & {
   label: string;
   name: string;
   options: SegmentOption[];
   defaultValue?: string;
-  soon?: boolean;
   className?: string;
 }) {
   return (
-    <fieldset disabled={soon} className={`min-w-0 ${className}`}>
+    <fieldset
+      disabled={soon}
+      aria-describedby={soon && hideBadge ? describedBy : undefined}
+      className={`min-w-0 ${className}`}
+    >
       <legend className="mb-2 text-[15px] font-black">
         {label}
-        {soon && <SoonTag />}
+        {soon && !hideBadge && <SoonTag />}
       </legend>
       <div
         className="grid gap-2"

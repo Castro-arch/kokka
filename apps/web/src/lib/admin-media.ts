@@ -107,3 +107,35 @@ export async function listMedia(
     next: more ? encodeCursor({ createdAt: last.cursorAt, id: last.id }) : undefined,
   };
 }
+
+export interface ProjectorQueue {
+  /** Media the projector loops through: ready, not hidden. */
+  total: number;
+  /** Newest first: the one on screen, then what comes next. */
+  items: (AdminMediaItem & { createdAt: Date })[];
+}
+
+/** What the projector shows now and next, newest first (new uploads enter right after). */
+export async function projectorQueue(eventId: string, limit: number): Promise<ProjectorQueue> {
+  const ready = and(eq(media.eventId, eventId), eq(media.status, "ready"));
+  const [rows, [count]] = await Promise.all([
+    getDb()
+      .select({
+        id: media.id,
+        kind: media.kind,
+        status: media.status,
+        durationMs: media.durationMs,
+        thumbKey: media.thumbKey,
+        createdAt: media.createdAt,
+      })
+      .from(media)
+      .where(ready)
+      .orderBy(desc(media.createdAt), desc(media.id))
+      .limit(limit),
+    getDb()
+      .select({ total: sql<number>`count(*)::int` })
+      .from(media)
+      .where(ready),
+  ]);
+  return { total: count?.total ?? 0, items: await withThumbUrls(rows) };
+}

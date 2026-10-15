@@ -4,8 +4,19 @@ import type { ReactNode } from "react";
  * Features without a backend yet stay visible but inert: `aria-disabled` (still focusable, so the
  * hint can be read), faded, no hover or press, and a visible "Em breve" — a `title` alone never
  * shows on a phone. Regular buttons get a pill on their top right corner; small buttons and trail
- * nodes get a dot whose tooltip shows on hover and focus.
+ * nodes get a dot whose tooltip shows on hover and focus. When one notice on the screen already
+ * explains it, controls take `hideBadge` and point at that notice with `describedBy` instead.
  */
+
+/** Props shared by the primitives that can be "Em breve". */
+export interface SoonProps {
+  /** Feature without a backend yet: visible but inert, marked "Em breve". */
+  soon?: boolean;
+  /** Skip the per-control badge; a notice on the screen explains it (see `describedBy`). */
+  hideBadge?: boolean;
+  /** Id of the element that explains why the control is inert (used with `hideBadge`). */
+  describedBy?: string;
+}
 export const SOON_CONTROL = "cursor-not-allowed opacity-55";
 
 /** Wraps a control with the "Em breve" pill; the control points at it with aria-describedby. */
@@ -63,11 +74,11 @@ export function SoonDot({
 }
 
 /** Inline "Em breve" pill, next to the label of a disabled field or group. */
-export function SoonTag({ id }: { id?: string }) {
+export function SoonTag({ id, className = "ml-2" }: { id?: string; className?: string }) {
   return (
     <span
       id={id}
-      className="ml-2 inline-block rounded-full bg-sun-soft px-2 py-0.5 align-middle text-[11px] font-black whitespace-nowrap text-sun-text"
+      className={`${className} inline-block rounded-full bg-sun-soft px-2 py-0.5 align-middle text-[11px] font-black whitespace-nowrap text-sun-text`}
     >
       Em breve
     </span>

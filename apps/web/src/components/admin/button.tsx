@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useId, type ButtonHTMLAttributes, type ReactNode } from "react";
-import { SOON_CONTROL, SoonPill } from "@/components/admin/soon";
+import { SOON_CONTROL, SoonPill, type SoonProps } from "@/components/admin/soon";
 
 export type ButtonVariant = "primary" | "sun" | "outline" | "ghost-on-brand";
 export type ButtonSize = "md" | "lg";
@@ -51,9 +51,8 @@ interface CommonProps {
 }
 
 type ButtonProps = CommonProps &
+  SoonProps &
   Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className" | "children"> & {
-    /** Feature without a backend yet: visible but inert, with an "Em breve" pill (see soon.tsx). */
-    soon?: boolean;
     /** Classes for the wrapper that carries the "Em breve" pill (e.g. width). */
     soonClassName?: string;
   };
@@ -63,6 +62,8 @@ export function Button({
   size,
   className,
   soon = false,
+  hideBadge = false,
+  describedBy,
   soonClassName,
   type = "button",
   disabled,
@@ -71,23 +72,27 @@ export function Button({
 }: ButtonProps) {
   const soonId = useId();
   if (soon) {
+    const inert = (
+      <button
+        type="button"
+        aria-disabled="true"
+        aria-describedby={hideBadge ? describedBy : soonId}
+        className={buttonClassName({
+          variant,
+          size,
+          inert: true,
+          className: `${SOON_CONTROL} ${className ?? ""}`,
+        })}
+        {...props}
+        onClick={undefined}
+      >
+        {children}
+      </button>
+    );
+    if (hideBadge) return inert;
     return (
       <SoonPill id={soonId} className={soonClassName}>
-        <button
-          type="button"
-          aria-disabled="true"
-          aria-describedby={soonId}
-          className={buttonClassName({
-            variant,
-            size,
-            inert: true,
-            className: `${SOON_CONTROL} ${className ?? ""}`,
-          })}
-          {...props}
-          onClick={undefined}
-        >
-          {children}
-        </button>
+        {inert}
       </SoonPill>
     );
   }
