@@ -141,19 +141,9 @@ async function waitForServer(): Promise<void> {
   throw new Error("next dev did not answer /api/health within 2 minutes");
 }
 
-/**
- * Loads a page and waits for the network to settle. Source files written just before the run
- * (formatters, editors) can reach the dev watcher late and reload the first page; one retry
- * covers that.
- */
+/** Loads a page and waits for the network to settle (the first visit compiles the route). */
 async function open(page: Page, url: string): Promise<void> {
-  try {
-    await page.goto(url, { waitUntil: "networkidle", timeout: 90_000 });
-  } catch (error) {
-    if (!(error instanceof Error) || error.name !== "TimeoutError") throw error;
-    console.warn(`${url} did not settle; retrying once`);
-    await page.goto(url, { waitUntil: "networkidle", timeout: 90_000 });
-  }
+  await page.goto(url, { waitUntil: "networkidle", timeout: 180_000 });
 }
 
 const toDataUrl = async (file: string) =>
@@ -195,6 +185,9 @@ async function main(): Promise<void> {
   try {
     await waitForServer();
     const context = await browser.newContext({ locale: "pt-BR", reducedMotion: "reduce" });
+    // Screenshots need no hot reload. Without this, a watcher event (a type generation or a
+    // formatter run just before) makes the dev client reload the page in a loop.
+    await context.routeWebSocket(/\/_next\/webpack-hmr/, () => undefined);
     const signIn = await context.request.post(`${BASE_URL}/api/auth/sign-in/email`, {
       headers: { origin: BASE_URL },
       data: { email: SHOTS_ADMIN.email, password: SHOTS_ADMIN.password },
