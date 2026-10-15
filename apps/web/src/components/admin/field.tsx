@@ -46,7 +46,7 @@ export function Field({
         {label}
         {cloneElement(children, {
           "aria-describedby": describedBy,
-          "aria-invalid": error ? true : undefined,
+          "aria-invalid": error ? true : children.props["aria-invalid"],
         })}
       </label>
       {note && (
