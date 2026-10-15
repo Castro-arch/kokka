@@ -26,7 +26,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <Link
             href="/admin/eventos"
             aria-current="page"
-            className="flex h-11 items-center gap-3 rounded-2xl border-2 border-b-4 border-active-line bg-active px-3.5 font-black text-brand-deep lg:h-13 lg:text-base"
+            className="flex h-11 items-center gap-3 rounded-2xl border-2 border-b-4 border-active-line bg-active px-3.5 font-black text-brand-edge lg:h-13 lg:text-base"
           >
             <CalendarIcon className="h-6 w-6" strokeWidth={2.4} />
             Eventos

@@ -8,8 +8,8 @@
 
   --color-brand: #fc123a;
   --color-brand-strong: #d90f32;
-  --color-brand-hover: #be0e2e;
-  --color-brand-deep: #9e0a24;
+  --color-brand-dark: #be0e2e;
+  --color-brand-edge: #9e0a24;
 
   --color-ink: #1f2430;
   --color-ink-soft: #4b5263;
@@ -20,7 +20,7 @@
   --color-active-line: #f3a6b4;
 
   --color-sun: #ffc800;
-  --color-sun-deep: #c99a00;
+  --color-sun-edge: #c99a00;
   --color-sun-ink: #3b2a00;
   --color-sun-soft: #fff6d6;
   --color-sun-line: #f2d27a;
@@ -47,7 +47,7 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl border-b-[5px] border-brand-deep bg-brand-strong px-5 py-2.5 font-black text-white hover:bg-brand-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand active:translate-y-0.5 active:border-b-[3px] disabled:opacity-60;
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl border-b-[5px] border-brand-edge bg-brand-strong px-5 py-2.5 font-black text-white hover:bg-brand-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand active:translate-y-0.5 active:border-b-[3px] disabled:opacity-60;
   }
 
   .btn-secondary {
@@ -59,6 +59,6 @@
   }
 
   .btn-danger {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-b-[5px] border-active-line bg-white px-5 py-2 font-black text-brand-deep hover:bg-active disabled:opacity-60;
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-b-[5px] border-active-line bg-white px-5 py-2 font-black text-brand-edge hover:bg-active disabled:opacity-60;
   }
 }

@@ -17,7 +17,7 @@ const BADGES: Partial<Record<MediaStatus, { label: string; tile: string; badge: 
   uploading: {
     label: "Enviando",
     tile: "bg-[#ffd7de] border-active-line",
-    badge: "text-brand-deep",
+    badge: "text-brand-edge",
   },
   processing: {
     label: "Preparando",
@@ -25,7 +25,7 @@ const BADGES: Partial<Record<MediaStatus, { label: string; tile: string; badge: 
     badge: "text-[#6b4300]",
   },
   ready: { label: "Na galeria", tile: "bg-[#cfe9ff] border-[#9ccbf2]", badge: "text-[#0b5a2a]" },
-  failed: { label: "Falhou", tile: "bg-block border-line", badge: "text-brand-deep" },
+  failed: { label: "Falhou", tile: "bg-block border-line", badge: "text-brand-edge" },
 };
 
 /**

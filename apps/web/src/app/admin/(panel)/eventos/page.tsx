@@ -73,7 +73,7 @@ export default async function EventsPage() {
           Icon={BoltIcon}
           value={summary.liveEvents}
           label={summary.liveEvents === 1 ? "evento ao vivo" : "eventos ao vivo"}
-          tone="bg-active text-brand-deep"
+          tone="bg-active text-brand-edge"
         />
         <SummaryBlock
           Icon={CameraIcon}

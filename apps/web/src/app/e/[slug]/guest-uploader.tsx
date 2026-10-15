@@ -47,7 +47,7 @@ export function GuestUploader({ color, colorEdge, onColor }: GuestUploaderProps)
           />
         </label>
         <label
-          className={`${block} h-32 flex-col gap-2.5 border-b-[6px] border-sun-deep bg-sun text-lg text-sun-ink`}
+          className={`${block} h-32 flex-col gap-2.5 border-b-[6px] border-sun-edge bg-sun text-lg text-sun-ink`}
         >
           <VideoIcon className="h-10 w-10" strokeWidth={2.2} />
           Gravar vídeo
@@ -90,7 +90,7 @@ export function GuestUploader({ color, colorEdge, onColor }: GuestUploaderProps)
                 <div className="flex items-center justify-between gap-2 text-[15px] font-black">
                   <span className="truncate">{item.label}</span>
                   {item.state === "sending" && (
-                    <span className="text-brand-deep">{item.percent}%</span>
+                    <span className="text-brand-edge">{item.percent}%</span>
                   )}
                   {item.state === "done" && (
                     <span className="inline-flex items-center gap-1 text-[#0b5a2a]">
@@ -101,7 +101,7 @@ export function GuestUploader({ color, colorEdge, onColor }: GuestUploaderProps)
                     <button
                       type="button"
                       onClick={() => void retry(item)}
-                      className="text-brand-deep underline"
+                      className="text-brand-edge underline"
                     >
                       Tentar de novo
                     </button>
@@ -126,7 +126,7 @@ export function GuestUploader({ color, colorEdge, onColor }: GuestUploaderProps)
                   </span>
                 )}
                 {item.message && (
-                  <span className="text-[13px] font-bold text-brand-deep">{item.message}</span>
+                  <span className="text-[13px] font-bold text-brand-edge">{item.message}</span>
                 )}
               </div>
             </li>
