@@ -25,6 +25,8 @@ interface Screen {
   path: (ids: SeededIds) => string;
   /** Puts the page in the state the mockup shows (selections, open panels). */
   prepare?: (page: Page) => Promise<void>;
+  /** Shoot only the window, for screens whose mockup shows something stuck to its bottom. */
+  viewportOnly?: boolean;
 }
 
 const SCREENS: Screen[] = [
@@ -42,7 +44,18 @@ const SCREENS: Screen[] = [
     },
   },
   { name: "telao", path: (ids) => `/admin/eventos/${ids.live}/telao` },
-  { name: "midias", path: (ids) => `/admin/eventos/${ids.live}/midias` },
+  {
+    name: "midias",
+    path: (ids) => `/admin/eventos/${ids.live}/midias`,
+    // The mockup has three tiles selected and the bulk bar stuck to the bottom of the window.
+    viewportOnly: true,
+    prepare: async (page) => {
+      const boxes = page.getByRole("checkbox");
+      // Click the tile (the label), as a person would; the input itself is visually hidden.
+      for (const index of [0, 3, 7]) await boxes.nth(index).locator("xpath=..").click();
+      await page.getByRole("toolbar", { name: "Ações em lote" }).waitFor();
+    },
+  },
   { name: "configuracoes", path: () => "/admin/configuracoes" },
 ];
 
@@ -128,6 +141,21 @@ async function waitForServer(): Promise<void> {
   throw new Error("next dev did not answer /api/health within 2 minutes");
 }
 
+/**
+ * Loads a page and waits for the network to settle. Source files written just before the run
+ * (formatters, editors) can reach the dev watcher late and reload the first page; one retry
+ * covers that.
+ */
+async function open(page: Page, url: string): Promise<void> {
+  try {
+    await page.goto(url, { waitUntil: "networkidle", timeout: 90_000 });
+  } catch (error) {
+    if (!(error instanceof Error) || error.name !== "TimeoutError") throw error;
+    console.warn(`${url} did not settle; retrying once`);
+    await page.goto(url, { waitUntil: "networkidle", timeout: 90_000 });
+  }
+}
+
 const toDataUrl = async (file: string) =>
   `data:image/png;base64,${(await readFile(file)).toString("base64")}`;
 
@@ -177,20 +205,19 @@ async function main(): Promise<void> {
     for (const screen of screens) {
       for (const size of sizes) {
         await page.setViewportSize({ width: size.width, height: size.height });
-        await page.goto(`${BASE_URL}${screen.path(ids)}`, {
-          waitUntil: "networkidle",
-          timeout: 180_000,
-        });
+        await open(page, `${BASE_URL}${screen.path(ids)}`);
         // The dev-only Next.js badge is not part of the design.
         await page.addStyleTag({ content: "nextjs-portal{display:none!important}" });
         await page.evaluate(() => document.fonts.ready);
         await screen.prepare?.(page);
         // The mockups are rendered at their full height; grow the viewport to match, so the
         // sticky full-height sidebar spans the whole page as it does there.
-        const height = await page.evaluate(() => document.documentElement.scrollHeight);
-        await page.setViewportSize({ width: size.width, height: Math.max(size.height, height) });
+        if (!screen.viewportOnly) {
+          const height = await page.evaluate(() => document.documentElement.scrollHeight);
+          await page.setViewportSize({ width: size.width, height: Math.max(size.height, height) });
+        }
         const file = `${implDir}${screen.name}${size.suffix}.png`;
-        await page.screenshot({ path: file, fullPage: true });
+        await page.screenshot({ path: file, fullPage: !screen.viewportOnly });
         console.log(`saved ${file}`);
         const name = `${screen.name}${size.suffix}`;
         if (size.compare && existsSync(`${designDir}${name}.png`)) await compare(page, name);
