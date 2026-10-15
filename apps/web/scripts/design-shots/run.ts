@@ -27,6 +27,8 @@ interface Screen {
   prepare?: (page: Page) => Promise<void>;
   /** Shoot only the window, for screens whose mockup shows something stuck to its bottom. */
   viewportOnly?: boolean;
+  /** Shoot without a session (the login screen). */
+  signedOut?: boolean;
 }
 
 const SCREENS: Screen[] = [
@@ -60,6 +62,31 @@ const SCREENS: Screen[] = [
   { name: "configuracoes", path: () => "/admin/configuracoes" },
   // Where a successful password change lands.
   { name: "configuracoes-senha-ok", path: () => "/admin/configuracoes?senha=trocada" },
+  // Screens without a mockup, in the admin look.
+  {
+    name: "novo-evento",
+    path: () => "/admin/eventos/novo",
+    // Typing shows the live preview at work.
+    prepare: async (page) => {
+      await page.getByLabel("Nome do evento").fill("Ana & Pedro");
+      await page.getByLabel("Subtítulo (opcional)").fill("Casamento · 21 de novembro");
+      await page.getByRole("region", { name: "Prévia" }).getByText("Ana & Pedro").waitFor();
+    },
+  },
+  { name: "login", path: () => "/admin/login", signedOut: true },
+  {
+    // A wrong password through the real sign-in: error, invalid fields, e-mail kept.
+    name: "login-erro",
+    path: () => "/admin/login",
+    signedOut: true,
+    prepare: async (page) => {
+      await page.getByLabel("E-mail").fill(SHOTS_ADMIN.email);
+      await page.getByLabel("Senha").fill("nao-e-a-senha-123");
+      await page.getByRole("button", { name: "Entrar" }).click();
+      // Not getByRole("alert"): Next's route announcer has that role too.
+      await page.getByText("E-mail ou senha inválidos.").waitFor();
+    },
+  },
   {
     // The password dialog after a wrong current password, through the real server action.
     name: "configuracoes-senha",
@@ -235,8 +262,12 @@ async function main(): Promise<void> {
     });
     if (!signIn.ok()) throw new Error(`Sign-in failed: ${String(signIn.status())}`);
 
-    const page = await context.newPage();
+    const signedIn = await context.newPage();
+    const anonymous = await browser.newContext({ locale: "pt-BR", reducedMotion: "reduce" });
+    await anonymous.routeWebSocket(/\/_next\/(webpack-)?hmr/, keepHmrWithoutReloads);
+    const signedOut = await anonymous.newPage();
     for (const screen of screens) {
+      const page = screen.signedOut ? signedOut : signedIn;
       for (const size of sizes) {
         await page.setViewportSize({ width: size.width, height: size.height });
         await open(page, `${BASE_URL}${screen.path(ids)}`);
