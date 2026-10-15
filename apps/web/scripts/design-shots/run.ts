@@ -159,6 +159,10 @@ async function main(): Promise<void> {
         await page.addStyleTag({ content: "nextjs-portal{display:none!important}" });
         await page.evaluate(() => document.fonts.ready);
         await screen.prepare?.(page);
+        // The mockups are rendered at their full height; grow the viewport to match, so the
+        // sticky full-height sidebar spans the whole page as it does there.
+        const height = await page.evaluate(() => document.documentElement.scrollHeight);
+        await page.setViewportSize({ width: size.width, height: Math.max(size.height, height) });
         const file = `${implDir}${screen.name}${size.suffix}.png`;
         await page.screenshot({ path: file, fullPage: true });
         console.log(`saved ${file}`);
