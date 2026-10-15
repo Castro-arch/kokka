@@ -4,6 +4,7 @@
 //
 //   pnpm --filter @kokka/web design:shots            all screens
 //   pnpm --filter @kokka/web design:shots eventos    only the named screens
+//   pnpm --filter @kokka/web design:shots --mobile   also a 390×844 phone shot (no mockup to compare)
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { mkdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
@@ -33,10 +34,20 @@ const SCREENS: Screen[] = [
   { name: "configuracoes", path: () => "/admin/configuracoes" },
 ];
 
-const SIZES = [
-  { suffix: "", width: 1440, height: 900 },
-  { suffix: "-1280", width: 1280, height: 800 },
-] as const;
+interface Size {
+  suffix: string;
+  width: number;
+  height: number;
+  /** False for sizes without a mockup. */
+  compare: boolean;
+}
+
+const SIZES: Size[] = [
+  { suffix: "", width: 1440, height: 900, compare: true },
+  { suffix: "-1280", width: 1280, height: 800, compare: true },
+];
+
+const PHONE: Size = { suffix: "-390", width: 390, height: 844, compare: false };
 
 function shotsDatabaseUrl(): { admin: string; shots: string } {
   const admin = process.env.DATABASE_URL;
@@ -126,7 +137,9 @@ async function compare(page: Page, name: string): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const only = process.argv.slice(2);
+  const args = process.argv.slice(2);
+  const only = args.filter((arg) => !arg.startsWith("--"));
+  const sizes = args.includes("--mobile") ? [...SIZES, PHONE] : SIZES;
   const screens = only.length ? SCREENS.filter((screen) => only.includes(screen.name)) : SCREENS;
   if (screens.length === 0) throw new Error(`Unknown screen: ${only.join(", ")}`);
 
@@ -149,7 +162,7 @@ async function main(): Promise<void> {
 
     const page = await context.newPage();
     for (const screen of screens) {
-      for (const size of SIZES) {
+      for (const size of sizes) {
         await page.setViewportSize({ width: size.width, height: size.height });
         await page.goto(`${BASE_URL}${screen.path(ids)}`, {
           waitUntil: "networkidle",
@@ -166,7 +179,7 @@ async function main(): Promise<void> {
         const file = `${implDir}${screen.name}${size.suffix}.png`;
         await page.screenshot({ path: file, fullPage: true });
         console.log(`saved ${file}`);
-        await compare(page, `${screen.name}${size.suffix}`);
+        if (size.compare) await compare(page, `${screen.name}${size.suffix}`);
       }
     }
   } finally {
