@@ -13,6 +13,7 @@ import {
   type NewEvent,
   type NewMedia,
 } from "@kokka/db";
+import { TILE_TONES, tileTone } from "../../src/lib/media-tone.ts";
 
 /** The only database this seed may wipe; anything else is refused. */
 export const SHOTS_DATABASE = "kokka_shots";
@@ -68,8 +69,23 @@ function liveSlots(): Slot[] {
   return slots;
 }
 
-function mediaRow(eventId: string, slot: Slot, createdAt: Date, device: number): NewMedia {
-  const id = randomUUID();
+/** An id whose pastel tile (tileTone) is the one the mockup shows in that grid column. */
+function idWithTone(index: number): string {
+  const tone = TILE_TONES[index % TILE_TONES.length];
+  for (;;) {
+    const id = randomUUID();
+    if (tileTone(id) === tone) return id;
+  }
+}
+
+function mediaRow(
+  eventId: string,
+  slot: Slot,
+  createdAt: Date,
+  device: number,
+  index = 0,
+): NewMedia {
+  const id = idWithTone(index);
   const video = slot.kind === "video";
   return {
     id,
@@ -164,7 +180,7 @@ export async function seedShots(databaseUrl: string, now = new Date()): Promise<
 
     const lastUpload = now.getTime() - 2 * MINUTE;
     const liveMedia = liveSlots().map((slot, index) =>
-      mediaRow(live, slot, new Date(lastUpload - index * MINUTE), index % 63),
+      mediaRow(live, slot, new Date(lastUpload - index * MINUTE), index % 63, index),
     );
     const closedMedia = Array.from({ length: 449 }, (_, index) =>
       mediaRow(

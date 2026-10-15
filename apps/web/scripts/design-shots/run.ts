@@ -6,6 +6,7 @@
 //   pnpm --filter @kokka/web design:shots eventos    only the named screens
 //   pnpm --filter @kokka/web design:shots --mobile   also a 390×844 phone shot (no mockup to compare)
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
+import { existsSync } from "node:fs";
 import { mkdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
@@ -29,6 +30,17 @@ interface Screen {
 const SCREENS: Screen[] = [
   { name: "eventos", path: () => "/admin" },
   { name: "evento", path: (ids) => `/admin/eventos/${ids.live}` },
+  // States without a mockup: shot for review, not compared.
+  { name: "evento-personalizacao", path: (ids) => `/admin/eventos/${ids.live}?aba=personalizacao` },
+  { name: "evento-qr", path: (ids) => `/admin/eventos/${ids.live}?aba=qr` },
+  {
+    name: "evento-encerrar",
+    path: (ids) => `/admin/eventos/${ids.live}`,
+    prepare: async (page) => {
+      await page.getByRole("button", { name: "Encerrar envios" }).click();
+      await page.getByRole("dialog").waitFor();
+    },
+  },
   { name: "telao", path: (ids) => `/admin/eventos/${ids.live}/telao` },
   { name: "midias", path: (ids) => `/admin/eventos/${ids.live}/midias` },
   { name: "configuracoes", path: () => "/admin/configuracoes" },
@@ -180,7 +192,8 @@ async function main(): Promise<void> {
         const file = `${implDir}${screen.name}${size.suffix}.png`;
         await page.screenshot({ path: file, fullPage: true });
         console.log(`saved ${file}`);
-        if (size.compare) await compare(page, `${screen.name}${size.suffix}`);
+        const name = `${screen.name}${size.suffix}`;
+        if (size.compare && existsSync(`${designDir}${name}.png`)) await compare(page, name);
       }
     }
   } finally {
