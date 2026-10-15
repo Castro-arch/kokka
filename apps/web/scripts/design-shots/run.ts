@@ -58,6 +58,23 @@ const SCREENS: Screen[] = [
     },
   },
   { name: "configuracoes", path: () => "/admin/configuracoes" },
+  // Where a successful password change lands.
+  { name: "configuracoes-senha-ok", path: () => "/admin/configuracoes?senha=trocada" },
+  {
+    // The password dialog after a wrong current password, through the real server action.
+    name: "configuracoes-senha",
+    path: () => "/admin/configuracoes",
+    prepare: async (page) => {
+      const dialog = page.getByRole("dialog");
+      await page.getByRole("button", { name: "Trocar senha" }).click();
+      await dialog.waitFor();
+      await dialog.getByLabel("Senha atual").fill("nao-e-a-senha-123");
+      await dialog.getByLabel("Nova senha", { exact: true }).fill("uma-senha-nova-456");
+      await dialog.getByLabel("Confirme a nova senha").fill("uma-senha-nova-456");
+      await dialog.getByRole("button", { name: "Trocar senha" }).click();
+      await dialog.getByText("Senha atual incorreta.").waitFor();
+    },
+  },
 ];
 
 interface Size {
