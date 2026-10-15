@@ -2,7 +2,7 @@
 
 import { THEME_COLOR_PRESETS } from "@kokka/shared";
 import { useId, useState } from "react";
-import { SoonTag } from "@/components/admin/soon";
+import { SoonTag, type SoonProps } from "@/components/admin/soon";
 import { CheckIcon, PlusIcon } from "@/components/icons";
 import { darken, readableTextColor } from "@/lib/color";
 
@@ -21,12 +21,13 @@ export function ColorSwatches({
   value,
   onChange,
   soon = false,
-}: {
+  hideBadge = false,
+  describedBy,
+}: SoonProps & {
   name: string;
   label: string;
   value: string;
   onChange?: (color: string) => void;
-  soon?: boolean;
 }) {
   const groupName = useId();
   const [custom, setCustom] = useState(() => !isPreset(value));
@@ -41,10 +42,14 @@ export function ColorSwatches({
     "peer-checked:shadow-[0_0_0_3px_var(--color-white),0_0_0_6px_var(--color-ink)] peer-focus-visible:outline-3 peer-focus-visible:outline-offset-[9px] peer-focus-visible:outline-brand-strong";
 
   return (
-    <fieldset disabled={soon} className={`min-w-0 ${soon ? "[&_label]:cursor-not-allowed" : ""}`}>
+    <fieldset
+      disabled={soon}
+      aria-describedby={soon && hideBadge ? describedBy : undefined}
+      className={`min-w-0 ${soon ? "[&_label]:cursor-not-allowed" : ""}`}
+    >
       <legend className="mb-2 text-[15px] font-black">
         {label}
-        {soon && <SoonTag />}
+        {soon && !hideBadge && <SoonTag />}
       </legend>
       <input type="hidden" name={name} value={color} />
       <div className={`flex flex-wrap items-center gap-2.5 ${soon ? "opacity-55" : ""}`}>
