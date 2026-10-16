@@ -13,6 +13,7 @@ import {
   type NewEvent,
   type NewMedia,
 } from "@kokka/db";
+import { isValidSlug } from "@kokka/shared";
 import { TILE_TONES, tileTone } from "../../src/lib/media-tone.ts";
 
 /** The only database this seed may wipe; anything else is refused. */
@@ -130,7 +131,7 @@ export async function seedShots(databaseUrl: string, now = new Date()): Promise<
 
     const rows: NewEvent[] = [
       {
-        slug: "anapedro",
+        slug: "anapdr",
         name: "Ana & Pedro",
         subtitle: "Casamento",
         startsAt: liveStart,
@@ -140,7 +141,7 @@ export async function seedShots(databaseUrl: string, now = new Date()): Promise<
         createdAt: daysFrom(liveStart, -12),
       },
       {
-        slug: "julia15",
+        slug: "juhxz5",
         name: "15 anos da Júlia",
         subtitle: "15 anos",
         startsAt: draftStart,
@@ -150,7 +151,7 @@ export async function seedShots(databaseUrl: string, now = new Date()): Promise<
         createdAt: daysFrom(liveStart, -1),
       },
       {
-        slug: "bodasprata",
+        slug: "bdsprt",
         name: "Bodas de Prata",
         subtitle: "Bodas",
         startsAt: closedStart,
@@ -162,7 +163,7 @@ export async function seedShots(databaseUrl: string, now = new Date()): Promise<
         createdAt: daysFrom(liveStart, -30),
       },
       {
-        slug: "formaturamed",
+        slug: "frmmed",
         name: "Formatura Med 2026",
         subtitle: "Formatura",
         startsAt: expiredStart,
@@ -174,6 +175,10 @@ export async function seedShots(databaseUrl: string, now = new Date()): Promise<
         createdAt: daysFrom(liveStart, -60),
       },
     ];
+    // Guest links only open for real slugs (6 characters, no i, l, o, 0 or 1).
+    const invalid = rows.filter((row) => !isValidSlug(row.slug));
+    if (invalid.length)
+      throw new Error(`Invalid seed slugs: ${invalid.map((row) => row.slug).join(", ")}`);
     const inserted = await db.insert(events).values(rows).returning({ id: events.id });
     const [live, draft, closed, expired] = inserted.map((row) => row.id);
     if (!live || !draft || !closed || !expired) throw new Error("Seed did not insert 4 events");
