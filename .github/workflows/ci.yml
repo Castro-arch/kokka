@@ -74,6 +74,13 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # The worker tests transcode clips with ffmpeg and round-trip HEIC with libheif (heif-enc
+      # needs the x265 plugin, heif-dec the libde265 one); without them those tests are skipped.
+      - name: Install media tools
+        run: >-
+          sudo apt-get update -qq &&
+          sudo apt-get install -y -qq --no-install-recommends
+          ffmpeg libheif-examples libheif-plugin-libde265 libheif-plugin-x265
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
