@@ -1,5 +1,28 @@
 # @kokka/web
 
+## 0.4.0
+
+### Minor Changes
+
+- c4107bd: Redesign do admin (passo 3.5), no visual de `docs/design/admin/`: lateral escura que vira barra
+  superior no celular, tela Eventos com saudação do mascote, evento ao vivo em destaque e a trilha do
+  próximo ao mais antigo. Página do evento com capa na cor do tema, abas (Visão geral,
+  Personalização, QR e arte), ciclo com datas reais e QR das mesas; mudar o status pede confirmação.
+  Nova tela Mídias com filtros, seleção e download de um original; nova tela Telão com prévia e fila
+  (controles chegam no passo 5); nova tela Configurações com troca de nome e de senha. Login e novo
+  evento no mesmo visual, com prévia ao digitar. Funções ainda sem backend aparecem marcadas como
+  "Em breve".
+- 0f1a5cc: Redesign (passo 3.5), no visual de `docs/design/`: fonte Nunito e botões em bloco com borda
+  inferior. Convidado com cabeçalho na cor do evento e mascote, botões grandes para tirar foto,
+  gravar vídeo e escolher da galeria, progresso por envio, "Enviados por você", tela "Mandou bem!" ao
+  fim de cada lote, galeria em mosaico com selo "Nova" ao vivo e navegação inferior (Enviar, Galeria,
+  Meus envios).
+
+### Patch Changes
+
+- @kokka/db@0.4.0
+  - @kokka/shared@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes

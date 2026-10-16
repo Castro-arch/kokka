@@ -1,5 +1,12 @@
 # @kokka/worker
 
+## 0.4.0
+
+### Patch Changes
+
+- @kokka/db@0.4.0
+  - @kokka/shared@0.4.0
+
 ## 0.3.0
 
 ### Patch Changes
