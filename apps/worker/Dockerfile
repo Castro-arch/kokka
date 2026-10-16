@@ -23,7 +23,11 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --prefer-offline --frozen-lockfile --prod --filter "@kokka/worker..."
 
 FROM node:22-alpine AS runtime
-RUN apk add --no-cache ffmpeg
+# ffmpeg transcodes videos; libheif-tools brings heif-dec (libheif + libde265) for iPhone HEIC
+# photos, which the prebuilt sharp cannot decode. The build fails here if either is missing.
+RUN apk add --no-cache ffmpeg libheif-tools \
+    && ffmpeg -hide_banner -version > /dev/null \
+    && heif-dec --version
 ENV NODE_ENV=production \
     WORKER_HEALTH_PORT=3001
 WORKDIR /app
