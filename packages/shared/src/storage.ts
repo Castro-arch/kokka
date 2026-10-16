@@ -18,6 +18,10 @@ import {
   UploadPartCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { createReadStream, createWriteStream } from "node:fs";
+import { stat } from "node:fs/promises";
+import type { Readable } from "node:stream";
+import { pipeline } from "node:stream/promises";
 import type { StorageEnv } from "./env.ts";
 
 /** Default lifetime of signed URLs, in seconds. */
@@ -73,6 +77,32 @@ export function createStorage(env: StorageEnv) {
           CacheControl: options.cacheControl,
         }),
       );
+    },
+
+    /** Streams a local file up, for files too big to hold in memory (e.g. a transcoded video). */
+    async putFile(
+      key: string,
+      path: string,
+      options: { contentType: string; cacheControl?: string },
+    ): Promise<void> {
+      const { size } = await stat(path);
+      await client.send(
+        new PutObjectCommand({
+          Bucket: bucket,
+          Key: key,
+          Body: createReadStream(path),
+          ContentLength: size,
+          ContentType: options.contentType,
+          CacheControl: options.cacheControl,
+        }),
+      );
+    },
+
+    /** Streams an object down to a local file (an original can be 1 GB). */
+    async downloadToFile(key: string, path: string): Promise<void> {
+      const { Body } = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
+      if (!Body) throw new Error(`Empty object: ${key}`);
+      await pipeline(Body as Readable, createWriteStream(path));
     },
 
     /** Succeeds when the key does not exist, as S3 does. */

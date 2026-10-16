@@ -1,4 +1,7 @@
 import { randomUUID } from "node:crypto";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { parseEnv, storageEnvSchema } from "./env.ts";
 import { createStorage } from "./storage.ts";
@@ -91,6 +94,24 @@ describe.runIf(enabled)("storage round trip", () => {
 
     await storage.deleteObject(key);
     expect((await fetch(await storage.signedGetUrl(key))).status).toBe(404);
+  });
+
+  it("streams files up and down", async () => {
+    const storage = createStorage(parseEnv(storageEnvSchema));
+    const key = `test/${randomUUID()}.bin`;
+    const dir = await mkdtemp(join(tmpdir(), "kokka-storage-"));
+    try {
+      const content = Buffer.alloc(3 * 1024 * 1024, 7);
+      await writeFile(join(dir, "up.bin"), content);
+      await storage.putFile(key, join(dir, "up.bin"), { contentType: "application/octet-stream" });
+      expect((await storage.headObject(key))?.size).toBe(content.length);
+
+      await storage.downloadToFile(key, join(dir, "down.bin"));
+      expect((await readFile(join(dir, "down.bin"))).equals(content)).toBe(true);
+    } finally {
+      await storage.deleteObject(key);
+      await rm(dir, { recursive: true, force: true });
+    }
   });
 
   it("uploads in parts through signed urls, as the browser does", async () => {
