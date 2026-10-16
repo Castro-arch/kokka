@@ -55,7 +55,7 @@ export function UploadSuccess({ slug }: { slug: string }) {
             id="upload-success-title"
             ref={heading}
             tabIndex={-1}
-            className="text-4xl leading-[1.05] font-black text-brand-deep outline-none"
+            className="text-4xl leading-[1.05] font-black text-brand-edge outline-none"
           >
             Mandou bem!
           </h2>

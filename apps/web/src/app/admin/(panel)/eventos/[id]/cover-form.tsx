@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition, type ChangeEvent } from "react";
+import { buttonClassName } from "@/components/admin/button";
 
 interface CoverFormProps {
   eventId: string;
@@ -44,19 +45,26 @@ export function CoverForm({ eventId, coverUrl }: CoverFormProps) {
   }
 
   return (
-    <div className="space-y-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
+    <div className="flex flex-col items-start gap-4 rounded-[22px] border-2 border-b-[6px] border-line bg-white p-4.5 sm:p-6">
+      <h2 className="text-[19px] font-black">Foto de capa</h2>
       {coverUrl ? (
         // Signed, short-lived URL to a private bucket: next/image cannot optimize or cache it.
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={coverUrl}
           alt="Capa do evento"
-          className="aspect-video w-full rounded-xl object-cover"
+          className="aspect-video w-full rounded-[18px] object-cover"
         />
       ) : (
-        <p className="text-sm text-stone-600">Nenhuma capa ainda.</p>
+        <p className="text-[15px] font-bold text-ink-soft">Sem foto, a capa usa a cor do evento.</p>
       )}
-      <label className="btn-secondary cursor-pointer has-disabled:cursor-wait has-disabled:opacity-60">
+      <label
+        className={buttonClassName({
+          variant: "outline",
+          className:
+            "cursor-pointer has-focus-visible:outline-3 has-focus-visible:outline-offset-3 has-focus-visible:outline-brand-strong has-disabled:cursor-wait has-disabled:opacity-60",
+        })}
+      >
         {busy ? "Enviando…" : coverUrl ? "Trocar capa" : "Enviar capa"}
         <input
           type="file"
@@ -66,9 +74,9 @@ export function CoverForm({ eventId, coverUrl }: CoverFormProps) {
           className="sr-only"
         />
       </label>
-      <p className="text-xs text-stone-500">JPEG, PNG ou WebP, até 15 MB.</p>
+      <p className="text-sm font-bold text-ink-soft">JPEG, PNG ou WebP, até 15 MB.</p>
       {error && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm font-extrabold text-brand-edge">
           {error}
         </p>
       )}

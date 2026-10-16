@@ -1,15 +1,24 @@
 "use client";
 
-import { useActionState, type ReactNode } from "react";
+import { useActionState } from "react";
+import { Button } from "@/components/admin/button";
+import { Field, fieldClassName } from "@/components/admin/field";
 import type { FormState } from "@/lib/form";
 
 interface EventFormProps {
   action: (state: FormState | null, form: FormData) => Promise<FormState>;
+  /** Called as the name or subtitle is typed, for a live preview next to the form. */
+  onTextChange?: (field: "name" | "subtitle", value: string) => void;
   initialValues?: Record<string, string>;
   submitLabel: string;
 }
 
-export function EventForm({ action, initialValues = {}, submitLabel }: EventFormProps) {
+export function EventForm({
+  action,
+  onTextChange,
+  initialValues = {},
+  submitLabel,
+}: EventFormProps) {
   const [state, formAction, pending] = useActionState(action, null);
   const values = state?.values ?? initialValues;
   const errors = state?.errors ?? {};
@@ -17,17 +26,31 @@ export function EventForm({ action, initialValues = {}, submitLabel }: EventForm
   return (
     <form
       action={formAction}
-      className="space-y-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-stone-200"
+      className="flex flex-col gap-4 rounded-[22px] border-2 border-b-[6px] border-line bg-white p-4.5 sm:p-6"
     >
       <Field label="Nome do evento" error={errors.name}>
-        <input name="name" required maxLength={120} defaultValue={values.name} className="input" />
+        <input
+          name="name"
+          required
+          maxLength={120}
+          placeholder="Ex.: Ana & Pedro"
+          onChange={(event) => onTextChange?.("name", event.target.value)}
+          defaultValue={values.name}
+          className={fieldClassName}
+        />
       </Field>
       <Field
         label="Subtítulo (opcional)"
-        hint="Ex.: 21 de novembro de 2026"
+        hint="Ex.: Casamento · 21 de novembro"
         error={errors.subtitle}
       >
-        <input name="subtitle" maxLength={160} defaultValue={values.subtitle} className="input" />
+        <input
+          name="subtitle"
+          maxLength={160}
+          onChange={(event) => onTextChange?.("subtitle", event.target.value)}
+          defaultValue={values.subtitle}
+          className={fieldClassName}
+        />
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Início" error={errors.startsAt}>
@@ -36,7 +59,7 @@ export function EventForm({ action, initialValues = {}, submitLabel }: EventForm
             type="datetime-local"
             required
             defaultValue={values.startsAt}
-            className="input"
+            className={fieldClassName}
           />
         </Field>
         <Field label="Término" error={errors.endsAt}>
@@ -45,47 +68,26 @@ export function EventForm({ action, initialValues = {}, submitLabel }: EventForm
             type="datetime-local"
             required
             defaultValue={values.endsAt}
-            className="input"
+            className={fieldClassName}
           />
         </Field>
       </div>
-      <p className="text-xs text-stone-500">Horários de Brasília.</p>
+      <p className="text-sm font-bold text-ink-soft">Horários de Brasília.</p>
       {errors.form && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm font-extrabold text-brand-edge">
           {errors.form}
         </p>
       )}
-      <div className="flex items-center gap-3">
-        <button type="submit" disabled={pending} className="btn-primary">
+      <div className="flex flex-wrap items-center gap-3">
+        <Button type="submit" disabled={pending}>
           {pending ? "Salvando…" : submitLabel}
-        </button>
+        </Button>
         {state?.message && !pending && (
-          <p role="status" className="text-sm text-green-700">
+          <p role="status" className="text-sm font-extrabold text-ok-text">
             {state.message}
           </p>
         )}
       </div>
     </form>
-  );
-}
-
-function Field({
-  label,
-  hint,
-  error,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  error?: string;
-  children: ReactNode;
-}) {
-  return (
-    <label className="block space-y-1">
-      <span className="text-sm font-medium">{label}</span>
-      {children}
-      {hint && !error && <span className="block text-xs text-stone-500">{hint}</span>}
-      {error && <span className="block text-sm text-red-700">{error}</span>}
-    </label>
   );
 }

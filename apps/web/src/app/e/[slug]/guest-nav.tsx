@@ -28,7 +28,7 @@ export function GuestNav({ slug }: { slug: string }) {
               aria-current={current ? "page" : undefined}
               className={`flex h-15 flex-col items-center justify-center gap-0.5 rounded-2xl border-2 text-[13px] font-black focus-visible:outline-2 focus-visible:outline-brand ${
                 current
-                  ? "border-active-line bg-active text-brand-deep"
+                  ? "border-active-line bg-active text-brand-edge"
                   : "border-transparent text-ink-soft hover:bg-block"
               }`}
             >

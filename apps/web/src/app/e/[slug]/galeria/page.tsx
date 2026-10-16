@@ -112,7 +112,7 @@ export default async function GuestGalleryPage({
         <Link
           href={`/e/${event.slug}`}
           aria-label="Enviar foto ou vídeo"
-          className="fixed right-5 bottom-26 z-10 flex h-17 w-17 items-center justify-center rounded-[22px] border-b-[6px] border-brand-deep bg-brand-strong text-white hover:bg-brand-hover focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          className="fixed right-5 bottom-26 z-10 flex h-17 w-17 items-center justify-center rounded-[22px] border-b-[6px] border-brand-edge bg-brand-strong text-white hover:bg-brand-dark focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand"
         >
           <PlusIcon className="h-8 w-8" strokeWidth={2.6} />
         </Link>

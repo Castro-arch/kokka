@@ -2,7 +2,9 @@
 
 import { FONT_OPTIONS, type FontKey } from "@kokka/shared";
 import { startTransition, useActionState, useState } from "react";
-import { readableTextColor } from "@/lib/color";
+import { Button } from "@/components/admin/button";
+import { ColorSwatches } from "@/components/admin/color-swatches";
+import { EventPreview } from "@/components/admin/event-preview";
 import type { FormState } from "@/lib/form";
 
 interface ThemeFormProps {
@@ -29,37 +31,34 @@ export function ThemeForm({ action, initial, fontClassNames, preview }: ThemeFor
           formAction(data);
         });
       }}
-      className="space-y-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-stone-200"
+      className="flex flex-col gap-5 rounded-[22px] border-2 border-b-[6px] border-line bg-white p-4.5 sm:p-6"
     >
-      <div
-        className="rounded-xl px-6 py-8 text-center"
-        style={{ backgroundColor: color, color: readableTextColor(color) }}
-      >
-        <p className={`text-3xl font-bold ${fontClassNames[font]}`}>{preview.name}</p>
-        {preview.subtitle && <p className={`mt-1 ${fontClassNames[font]}`}>{preview.subtitle}</p>}
+      <EventPreview
+        name={preview.name}
+        subtitle={preview.subtitle}
+        color={color}
+        fontClassName={fontClassNames[font]}
+      />
+
+      <div>
+        <ColorSwatches
+          name="primaryColor"
+          label="Cor principal"
+          value={color}
+          onChange={setColor}
+        />
+        {errors.primaryColor && (
+          <p className="mt-2 text-sm font-extrabold text-brand-edge">{errors.primaryColor}</p>
+        )}
       </div>
 
-      <label className="flex items-center gap-3">
-        <input
-          type="color"
-          name="primaryColor"
-          value={color}
-          onChange={(event) => {
-            setColor(event.target.value);
-          }}
-          className="h-10 w-14 cursor-pointer rounded border border-stone-300"
-        />
-        <span className="text-sm font-medium">Cor principal</span>
-        {errors.primaryColor && <span className="text-sm text-red-700">{errors.primaryColor}</span>}
-      </label>
-
-      <fieldset className="space-y-2">
-        <legend className="text-sm font-medium">Fonte</legend>
+      <fieldset>
+        <legend className="mb-2 text-[15px] font-black">Fonte do título</legend>
         <div className="grid gap-2 sm:grid-cols-2">
           {FONT_OPTIONS.map((option) => (
             <label
               key={option.key}
-              className="flex cursor-pointer items-center gap-3 rounded-lg border border-stone-300 px-3 py-2 has-checked:border-brand has-checked:ring-2 has-checked:ring-brand"
+              className="flex min-h-13 cursor-pointer items-center gap-3 rounded-[14px] border-2 border-b-4 border-line bg-white px-3.5 has-checked:border-active-line has-checked:bg-active has-focus-visible:outline-3 has-focus-visible:outline-offset-3 has-focus-visible:outline-brand-strong"
             >
               <input
                 type="radio"
@@ -69,26 +68,28 @@ export function ThemeForm({ action, initial, fontClassNames, preview }: ThemeFor
                 onChange={() => {
                   setFont(option.key);
                 }}
-                className="accent-brand"
+                className="h-5 w-5 accent-brand-strong focus-visible:outline-none"
               />
               <span className={`text-lg ${fontClassNames[option.key]}`}>{option.label}</span>
             </label>
           ))}
         </div>
-        {errors.font && <p className="text-sm text-red-700">{errors.font}</p>}
+        {errors.font && (
+          <p className="mt-2 text-sm font-extrabold text-brand-edge">{errors.font}</p>
+        )}
       </fieldset>
 
       {errors.form && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm font-extrabold text-brand-edge">
           {errors.form}
         </p>
       )}
-      <div className="flex items-center gap-3">
-        <button type="submit" disabled={pending} className="btn-primary">
+      <div className="flex flex-wrap items-center gap-3">
+        <Button type="submit" disabled={pending}>
           {pending ? "Salvando…" : "Salvar personalização"}
-        </button>
+        </Button>
         {state?.message && !pending && (
-          <p role="status" className="text-sm text-green-700">
+          <p role="status" className="text-sm font-extrabold text-ok-text">
             {state.message}
           </p>
         )}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { darken, readableTextColor } from "./color";
+import { darken, lighten, readableTextColor } from "./color";
 
 describe("readableTextColor", () => {
   it("uses white on dark and saturated colors", () => {
@@ -20,5 +20,13 @@ describe("darken", () => {
     expect(darken("#d90f32", 0.25)).toBe("#a30b26");
     expect(darken("#ffffff", 0.5)).toBe("#808080");
     expect(darken("#000000")).toBe("#000000");
+  });
+});
+
+describe("lighten", () => {
+  it("mixes toward white", () => {
+    expect(lighten("#000000", 0.5)).toBe("#808080");
+    expect(lighten("#c2703d", 0)).toBe("#c2703d");
+    expect(lighten("#c2703d", 1)).toBe("#ffffff");
   });
 });

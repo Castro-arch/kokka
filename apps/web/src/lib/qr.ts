@@ -11,8 +11,14 @@ export function guestUrl(slug: string): string {
   return `${getEnv().APP_URL}/e/${slug}`;
 }
 
+/** On-screen code in the admin ink color; its card padding is the quiet zone, so no margin. */
 export function qrSvg(url: string): Promise<string> {
-  return QRCode.toString(url, { type: "svg", errorCorrectionLevel: ERROR_CORRECTION, margin: 2 });
+  return QRCode.toString(url, {
+    type: "svg",
+    errorCorrectionLevel: ERROR_CORRECTION,
+    margin: 0,
+    color: { dark: "#1f2430", light: "#ffffff" },
+  });
 }
 
 /** PNG with the 4-module quiet zone scanners expect around a standalone code. */

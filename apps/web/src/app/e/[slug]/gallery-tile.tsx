@@ -40,7 +40,7 @@ export function GalleryTile({
         className="h-full w-full object-cover"
       />
       {isNew && (
-        <span className="absolute top-2 left-2 rounded-full border-b-2 border-sun-deep bg-sun px-2 py-0.5 text-[11px] font-black text-sun-ink">
+        <span className="absolute top-2 left-2 rounded-full border-b-2 border-sun-edge bg-sun px-2 py-0.5 text-[11px] font-black text-sun-ink">
           Nova
         </span>
       )}

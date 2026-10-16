@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Eventos</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F5F8}
+a{color:#D90F32}a:hover{color:#BE0E2E}
+button{font-family:inherit;cursor:pointer}
+</style>
+</head>
+<body>
+<div style="width: 100%; min-height: 1000px; box-sizing: border-box; background: #F4F5F8; font-family: 'Nunito', system-ui, sans-serif; color: #1F2430; display: flex; flex-wrap: wrap; align-items: stretch">
+  <div style="flex: 0 0 248px; max-width: 100%; background: #1F2430">
+
+<aside aria-label="Menu" style="width: 100%; min-height: 960px; height: 100%; box-sizing: border-box; background: #1F2430; padding: 26px 16px; display: flex; flex-direction: column; gap: 24px; font-family: 'Nunito', system-ui, sans-serif; color: #FFFFFF">
+  <div style="display: flex; align-items: center; gap: 10px; padding: 0 6px">
+    <img src="mascot.png" alt="" style="width: 46px; height: 36px; object-fit: contain">
+    <span style="font-size: 26px; font-weight: 900; color: #FFFFFF">Kokka</span>
+  </div>
+  <nav aria-label="Seções" style="display: flex; flex-direction: column; gap: 6px">
+    <a href="eventos.html" aria-current="page" style="height: 52px; box-sizing: border-box; padding: 0 14px; border-radius: 16px; text-decoration: none; display: flex; align-items: center; gap: 12px; font-size: 16px; background: #D90F32; border-bottom: 5px solid #9E0A24; color: #FFFFFF; font-weight: 900;"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17"/><path d="M8 3v4"/><path d="M16 3v4"/></svg>Eventos</a>
+<a href="telao.html" aria-current="false" style="height: 52px; box-sizing: border-box; padding: 0 14px; border-radius: 16px; text-decoration: none; display: flex; align-items: center; gap: 12px; font-size: 16px; color: #D5D8E0; font-weight: 800;"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="13" rx="2.5"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>Telão</a>
+<a href="midias.html" aria-current="false" style="height: 52px; box-sizing: border-box; padding: 0 14px; border-radius: 16px; text-decoration: none; display: flex; align-items: center; gap: 12px; font-size: 16px; color: #D5D8E0; font-weight: 800;"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 9"/></svg>Mídias</a>
+<a href="configuracoes.html" aria-current="false" style="height: 52px; box-sizing: border-box; padding: 0 14px; border-radius: 16px; text-decoration: none; display: flex; align-items: center; gap: 12px; font-size: 16px; color: #D5D8E0; font-weight: 800;"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10"/><path d="M18 7h2"/><circle cx="16" cy="7" r="2"/><path d="M4 17h2"/><path d="M10 17h10"/><circle cx="8" cy="17" r="2"/></svg>Configurações</a>
+
+  </nav>
+  <div style="margin-top: auto; background: #FFF6D6; border: 2px solid #F2D27A; border-bottom-width: 5px; border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 8px">
+    <img src="mascot.png" alt="" style="width: 56px; height: 44px; object-fit: contain">
+    <span style="font-size: 15px; font-weight: 900; color: #3B2A00">Dica do Kokka</span>
+    <span style="font-size: 14px; font-weight: 700; color: #5A4300; line-height: 1.35">Imprima o QR em A6 e deixe um em cada mesa. Quanto mais perto, mais fotos.</span>
+  </div>
+  <div style="display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 16px; background: #2B313F">
+    <span aria-hidden="true" style="width: 40px; height: 40px; border-radius: 999px; background: #FFC800; color: #3B2A00; display: flex; align-items: center; justify-content: center; font-weight: 900; flex: 0 0 auto">J</span>
+    <div style="display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto">
+      <span style="font-size: 14px; font-weight: 900; color: #FFFFFF">José</span>
+      <span style="font-size: 13px; font-weight: 700; color: #B8BDC9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">jose@kokka.local</span>
+    </div>
+    <button type="button" aria-label="Sair" style="width: 36px; height: 36px; border: 0; border-radius: 10px; background: transparent; color: #B8BDC9; cursor: pointer; display: flex; align-items: center; justify-content: center; flex: 0 0 auto">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 16l-4-4 4-4"/><path d="M6 12h10"/></svg>
+    </button>
+  </div>
+</aside>
+</div>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px clamp(16px, 4vw, 44px); display: flex; flex-direction: column; gap: 24px">
+    <div style="width: 100%; max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px">
+
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px">
+        <img src="mascot.png" alt="" style="width: 72px; height: 56px; object-fit: contain">
+        <div style="flex: 1 1 260px; background: #FFFFFF; border: 2px solid #E3E5EB; border-bottom-width: 5px; border-radius: 20px; padding: 12px 18px">
+          <span style="display: block; font-size: 18px; font-weight: 900">Oi, José! Hoje tem festa.</span>
+          <span style="font-size: 15px; font-weight: 700; color: #4B5263">Ana &amp; Pedro está ao vivo. O próximo é o 15 anos da Júlia, em 46 dias.</span>
+        </div>
+        <button type="button" style="height: 54px; padding: 0 22px; border: 0; border-bottom: 6px solid #9E0A24; border-radius: 18px; background: #D90F32; color: #FFFFFF; display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 900">
+          <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          Novo evento
+        </button>
+      </div>
+
+      <section aria-label="Ao vivo agora" style="background: #D90F32; border-bottom: 8px solid #9E0A24; border-radius: 28px; padding: 26px 28px; color: #FFFFFF; display: flex; flex-wrap: wrap; gap: 24px; align-items: center">
+        <div style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 10px">
+          <span style="align-self: flex-start; background: #FFFFFF; color: #9E0A24; font-size: 13px; font-weight: 900; padding: 5px 12px; border-radius: 999px; display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 9px; height: 9px; border-radius: 999px; background: #D90F32"></span>Ao vivo agora</span>
+          <h1 style="margin: 0; font-size: 40px; font-weight: 900; line-height: 1.05">Ana &amp; Pedro</h1>
+          <span style="font-size: 18px; font-weight: 800">Casamento · começou às 19h · termina às 3h</span>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px">
+            <a href="telao.html" style="height: 52px; box-sizing: border-box; padding: 0 20px; border-bottom: 5px solid #C99A00; border-radius: 16px; background: #FFC800; color: #3B2A00; font-size: 16px; font-weight: 900; text-decoration: none; display: flex; align-items: center">Abrir telão</a>
+            <a href="midias.html" style="height: 52px; box-sizing: border-box; padding: 0 20px; border: 2px solid rgba(255,255,255,0.6); border-bottom-width: 5px; border-radius: 16px; color: #FFFFFF; font-size: 16px; font-weight: 900; text-decoration: none; display: flex; align-items: center">Ver mídias</a>
+            <a href="evento.html" style="height: 52px; box-sizing: border-box; padding: 0 16px; color: #FFFFFF; font-size: 16px; font-weight: 900; text-decoration: underline; display: flex; align-items: center">Detalhes</a>
+          </div>
+        </div>
+        <div style="flex: 1 1 300px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+          <div style="background: rgba(255,255,255,0.14); border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column"><span style="font-size: 34px; font-weight: 900">128</span><span style="font-size: 15px; font-weight: 800">fotos</span></div>
+          <div style="background: rgba(255,255,255,0.14); border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column"><span style="font-size: 34px; font-weight: 900">14</span><span style="font-size: 15px; font-weight: 800">vídeos</span></div>
+          <div style="background: rgba(255,255,255,0.14); border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column"><span style="font-size: 34px; font-weight: 900">63</span><span style="font-size: 15px; font-weight: 800">aparelhos</span></div>
+          <div style="background: rgba(255,255,255,0.14); border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column"><span style="font-size: 34px; font-weight: 900">2 min</span><span style="font-size: 15px; font-weight: 800">último envio</span></div>
+        </div>
+      </section>
+
+      <section aria-label="Sua trilha" style="background: #FFFFFF; border: 2px solid #E3E5EB; border-bottom-width: 6px; border-radius: 26px; padding: 22px 24px 30px 24px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap">
+          <h2 style="margin: 0; font-size: 20px; font-weight: 900">Sua trilha</h2>
+          <span style="font-size: 14px; font-weight: 800; color: #4B5263">Do próximo evento ao mais antigo</span>
+        </div>
+        <ol style="list-style: none; margin: 0; padding: 0; position: relative; display: flex; flex-direction: column; gap: 18px">
+          <li aria-hidden="true" style="position: absolute; left: 50%; top: 40px; bottom: 40px; width: 8px; margin-left: -4px; border-radius: 999px; background: repeating-linear-gradient(#E3E5EB 0 16px, transparent 16px 28px)"></li>
+
+          <li style="position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 168px minmax(0, 1fr); align-items: center; column-gap: 18px">
+            <div style="grid-column: 1; text-align: right; display: flex; flex-direction: column; align-items: flex-end">
+              <span style="font-size: 18px; font-weight: 900">15 anos da Júlia</span>
+              <span style="font-size: 14px; font-weight: 800; color: #4B5263">29/11 · Rascunho · faltam 46 dias</span>
+              <a href="evento.html" style="font-size: 14px; font-weight: 900; text-decoration: none">Terminar de configurar (2 de 4)</a>
+            </div>
+            <div style="grid-column: 2; display: flex; justify-content: center; position: relative; left: -26px">
+              <span style="position: relative; width: 88px; height: 88px; border-radius: 999px; background: #FFFFFF; border: 3px dashed #B9BECA; box-sizing: border-box; color: #4B5263; display: flex; align-items: center; justify-content: center">
+                <svg aria-hidden="true" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>
+              </span>
+            </div>
+          </li>
+
+          <li style="position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 168px minmax(0, 1fr); align-items: center; column-gap: 18px">
+            <div style="grid-column: 2; display: flex; justify-content: center; position: relative; left: 26px">
+              <span style="position: relative; width: 104px; height: 104px; border-radius: 999px; background: #D90F32; border-bottom: 9px solid #9E0A24; box-shadow: 0 0 0 7px #FFE8EC; box-sizing: border-box; color: #FFFFFF; display: flex; align-items: center; justify-content: center">
+                <svg aria-hidden="true" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="13" rx="2.5"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+                <span style="position: absolute; top: -13px; left: 50%; transform: translateX(-50%); white-space: nowrap; background: #FFC800; color: #3B2A00; border-bottom: 3px solid #C99A00; font-size: 12px; font-weight: 900; padding: 3px 10px; border-radius: 999px">HOJE</span>
+              </span>
+            </div>
+            <div style="grid-column: 3; display: flex; flex-direction: column; align-items: flex-start">
+              <span style="font-size: 18px; font-weight: 900">Ana &amp; Pedro</span>
+              <span style="font-size: 14px; font-weight: 800; color: #4B5263">14/10 · Ao vivo · 142 envios</span>
+              <a href="telao.html" style="font-size: 14px; font-weight: 900; text-decoration: none">Abrir telão</a>
+            </div>
+          </li>
+
+          <li style="position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 168px minmax(0, 1fr); align-items: center; column-gap: 18px">
+            <div style="grid-column: 1; text-align: right; display: flex; flex-direction: column; align-items: flex-end">
+              <span style="font-size: 18px; font-weight: 900">Bodas de Prata</span>
+              <span style="font-size: 14px; font-weight: 800; color: #4B5263">08/11 · Encerrado · 449 envios</span>
+              <span style="margin-top: 4px; background: #FFE8EC; color: #9E0A24; font-size: 12px; font-weight: 900; padding: 3px 10px; border-radius: 999px">Apagado em 3 dias</span>
+            </div>
+            <div style="grid-column: 2; display: flex; justify-content: center; position: relative; left: -26px">
+              <button type="button" aria-label="Baixar ZIP das Bodas de Prata" style="width: 88px; height: 88px; border: 0; border-radius: 999px; background: #FFC800; border-bottom: 8px solid #C99A00; color: #3B2A00; display: flex; align-items: center; justify-content: center">
+                <svg aria-hidden="true" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>
+              </button>
+            </div>
+          </li>
+
+          <li style="position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 168px minmax(0, 1fr); align-items: center; column-gap: 18px">
+            <div style="grid-column: 2; display: flex; justify-content: center; position: relative; left: 18px">
+              <span style="width: 72px; height: 72px; border-radius: 999px; background: #E3E5EB; border-bottom: 7px solid #C9CDD6; box-sizing: border-box; color: #6B7280; display: flex; align-items: center; justify-content: center">
+                <svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+              </span>
+            </div>
+            <div style="grid-column: 3; display: flex; flex-direction: column; align-items: flex-start">
+              <span style="font-size: 17px; font-weight: 900; color: #4B5263">Formatura Med 2026</span>
+              <span style="font-size: 14px; font-weight: 800; color: #6B7280">20/09 · Concluído e apagado</span>
+            </div>
+          </li>
+        </ol>
+      </section>
+    </div>
+  </main>
+</div>
+</body>
+</html>

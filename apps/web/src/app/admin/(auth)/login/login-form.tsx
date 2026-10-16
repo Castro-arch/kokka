@@ -1,64 +1,90 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, type SubmitEvent } from "react";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
+import { Button } from "@/components/admin/button";
+import { Field, fieldClassName } from "@/components/admin/field";
 import { authClient } from "@/lib/auth-client";
 import { formString } from "@/lib/form";
 
+interface SignInState {
+  email: string;
+  error: string | null;
+}
+
+const INITIAL: SignInState = { email: "", error: null };
+
+/**
+ * Sign-in through Better Auth's client, as a form action so the button can follow the pending
+ * state with useFormStatus.
+ */
 export function LoginForm() {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
-
-  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setPending(true);
-    setError(null);
-    const form = new FormData(event.currentTarget);
-    const { error: signInError } = await authClient.signIn.email({
-      email: formString(form, "email"),
+  const [state, signIn] = useActionState(async (_previous: SignInState, form: FormData) => {
+    const email = formString(form, "email");
+    const { error } = await authClient.signIn.email({
+      email,
       password: formString(form, "password"),
     });
-    if (signInError) {
-      setError(
-        signInError.status === 429
-          ? "Muitas tentativas. Aguarde um minuto e tente de novo."
-          : "Email ou senha inválidos.",
-      );
-      setPending(false);
-      return;
+    if (error) {
+      return {
+        // The form is reset after the action; keep the e-mail so only the password is retyped.
+        email,
+        error:
+          error.status === 429
+            ? "Muitas tentativas. Aguarde um minuto e tente de novo."
+            : "E-mail ou senha inválidos.",
+      };
     }
     router.replace("/admin");
     router.refresh();
-  }
+    return { email, error: null };
+  }, INITIAL);
+  const { error } = state;
 
   return (
     <form
-      onSubmit={(event) => void handleSubmit(event)}
-      className="space-y-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-stone-200"
+      action={signIn}
+      className="flex w-full flex-col gap-4 rounded-3xl border-2 border-b-[6px] border-line bg-white p-5.5"
     >
-      <label className="block space-y-1">
-        <span className="text-sm font-medium">Email</span>
-        <input name="email" type="email" autoComplete="username" required className="input" />
-      </label>
-      <label className="block space-y-1">
-        <span className="text-sm font-medium">Senha</span>
+      <Field label="E-mail">
+        <input
+          name="email"
+          type="email"
+          autoComplete="username"
+          required
+          defaultValue={state.email}
+          aria-invalid={error ? true : undefined}
+          className={fieldClassName}
+        />
+      </Field>
+      <Field label="Senha">
         <input
           name="password"
           type="password"
           autoComplete="current-password"
           required
-          className="input"
+          aria-invalid={error ? true : undefined}
+          className={fieldClassName}
         />
-      </label>
+      </Field>
       {error && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm font-extrabold text-brand-edge">
           {error}
         </p>
       )}
-      <button type="submit" disabled={pending} className="btn-primary w-full">
-        {pending ? "Entrando…" : "Entrar"}
-      </button>
+      <SubmitButton />
     </form>
+  );
+}
+
+/** Follows the form it sits in: "Entrando…" and disabled while the sign-in runs. */
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" size="lg" disabled={pending} className="w-full">
+      {pending ? "Entrando…" : "Entrar"}
+    </Button>
   );
 }

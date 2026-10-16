@@ -33,3 +33,14 @@ export function darken(hex: string, amount = 0.25): string {
   });
   return `#${channels.join("")}`;
 }
+
+/** The color mixed toward white by `amount` (0–1): the light accents on a theme-colored cover. */
+export function lighten(hex: string, amount = 0.2): string {
+  const channels = [1, 3, 5].map((start) => {
+    const value = parseInt(hex.slice(start, start + 2), 16);
+    return Math.round(value + (255 - value) * amount)
+      .toString(16)
+      .padStart(2, "0");
+  });
+  return `#${channels.join("")}`;
+}
