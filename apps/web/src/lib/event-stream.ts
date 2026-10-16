@@ -29,7 +29,8 @@ const HEARTBEAT_MS = 25_000;
 
 /**
  * Server-sent events for one gallery: `ready` with the item to insert, `removed` with the id of a
- * hidden or deleted item. Comments keep proxies from closing an idle connection. The Redis
+ * hidden or deleted item, `failed` with the id of an upload the worker gave up on (so the phone
+ * that sent it can show "Falhou"). Comments keep proxies from closing an idle connection. The Redis
  * subscription ends when the browser goes away.
  */
 export function createEventStream(options: EventStreamOptions): ReadableStream<Uint8Array> {
@@ -61,6 +62,8 @@ export function createEventStream(options: EventStreamOptions): ReadableStream<U
           });
         } else if (message.type === "media.hidden" || message.type === "media.deleted") {
           send(`event: removed\ndata: ${JSON.stringify({ id: message.mediaId })}\n\n`);
+        } else if (message.type === "media.failed") {
+          send(`event: failed\ndata: ${JSON.stringify({ id: message.mediaId })}\n\n`);
         }
       });
 

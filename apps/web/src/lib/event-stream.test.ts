@@ -38,7 +38,7 @@ async function readUntil(reader: ReadableStreamDefaultReader<Uint8Array>, text: 
 }
 
 describe("createEventStream", () => {
-  it("relays ready and removed media and ignores the rest", async () => {
+  it("relays ready, removed and failed media and ignores the rest", async () => {
     const { subscriber, publish } = fakeSubscriber();
     const readyItem = vi.fn((id: string) => Promise.resolve(id === "m1" ? ready : undefined));
     const abort = new AbortController();
@@ -62,6 +62,9 @@ describe("createEventStream", () => {
 
     publish({ type: "media.hidden", mediaId: "m2" });
     expect(await readUntil(reader, "removed")).toBe('event: removed\ndata: {"id":"m2"}\n\n');
+
+    publish({ type: "media.failed", mediaId: "m3" });
+    expect(await readUntil(reader, "failed")).toBe('event: failed\ndata: {"id":"m3"}\n\n');
 
     abort.abort();
     expect(await reader.read()).toEqual({ done: true, value: undefined });

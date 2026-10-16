@@ -1,6 +1,8 @@
 "use client";
 
 import type { MediaKind, MediaStatus } from "@kokka/shared";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { CheckIcon } from "@/components/icons";
 import { LocalPreview } from "./local-preview";
 import { useLocalPreviews } from "./local-previews";
@@ -40,6 +42,7 @@ export function OwnPending({
   title?: string;
 }) {
   const previews = useLocalPreviews();
+  useFinishedUploads(items);
   if (items.length === 0) return null;
 
   return (
@@ -81,4 +84,38 @@ export function OwnPending({
       </ul>
     </section>
   );
+}
+
+/**
+ * While some of this phone's uploads are still on their way, listens to the event's live stream
+ * and reloads the page data when one of them is ready or failed, so "Preparando" turns into
+ * "Na galeria" or "Falhou" without a reload. No connection when nothing is pending.
+ */
+function useFinishedUploads(items: OwnPendingItem[]) {
+  const router = useRouter();
+  const { slug } = useParams<{ slug: string }>();
+  const pending = items
+    .filter((item) => item.status === "uploading" || item.status === "processing")
+    .map((item) => item.id)
+    .join(",");
+
+  useEffect(() => {
+    if (!pending) return;
+    const ids = new Set(pending.split(","));
+    const source = new EventSource(`/api/e/${slug}/stream`);
+    const onFinished = (event: Event) => {
+      const { id } = JSON.parse((event as MessageEvent<string>).data) as { id: string };
+      if (ids.has(id)) router.refresh();
+    };
+    source.addEventListener("ready", onFinished);
+    source.addEventListener("failed", onFinished);
+    // Anything that finished before the stream was listening (page load, reconnects) would never
+    // arrive as an event: catch up once each time it (re)opens.
+    source.addEventListener("open", () => {
+      router.refresh();
+    });
+    return () => {
+      source.close();
+    };
+  }, [pending, slug, router]);
 }

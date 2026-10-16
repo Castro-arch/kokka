@@ -1,5 +1,11 @@
 import "server-only";
-import { eventChannel, QUEUE_NAMES, type MediaJobData, type RealtimeMessage } from "@kokka/shared";
+import {
+  eventChannel,
+  MEDIA_JOB_OPTIONS,
+  QUEUE_NAMES,
+  type MediaJobData,
+  type RealtimeMessage,
+} from "@kokka/shared";
 import { Queue } from "bullmq";
 import { getRedis } from "./redis";
 
@@ -15,17 +21,7 @@ export function getMediaQueue(): Queue<MediaJobData> {
 
 /** Hands an uploaded original to the worker. The media id is the job id, so retries never duplicate. */
 export async function enqueueMediaProcessing(mediaId: string): Promise<void> {
-  await getMediaQueue().add(
-    "process",
-    { mediaId },
-    {
-      jobId: mediaId,
-      attempts: 3,
-      backoff: { type: "exponential", delay: 30_000 },
-      removeOnComplete: 1000,
-      removeOnFail: 5000,
-    },
-  );
+  await getMediaQueue().add("process", { mediaId }, { ...MEDIA_JOB_OPTIONS, jobId: mediaId });
 }
 
 export async function publishToEvent(eventId: string, message: RealtimeMessage): Promise<void> {

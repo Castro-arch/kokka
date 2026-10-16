@@ -13,6 +13,13 @@ describe("realtime messages", () => {
     });
   });
 
+  it("parses failures from the worker", () => {
+    expect(parseRealtimeMessage('{"type":"media.failed","mediaId":"m1"}')).toEqual({
+      type: "media.failed",
+      mediaId: "m1",
+    });
+  });
+
   it("ignores malformed or unknown messages", () => {
     expect(parseRealtimeMessage("not json")).toBeUndefined();
     expect(parseRealtimeMessage('{"type":"media.ready"}')).toBeUndefined();
