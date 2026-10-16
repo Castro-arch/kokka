@@ -131,7 +131,11 @@ SSE em `/api/e/{slug}/stream`. Worker publica no Redis (`event:{id}`) quando uma
 
 ## Referência visual
 
-Os mockups em [`docs/design/`](docs/design/) (estilo Duolingo: telas do convidado — enviar, envio concluído, galeria — e a lista de eventos do admin) são a **referência visual do próximo passo de UI**. Não são código de produção. O sistema visual (fonte Nunito, botões 3D, cores, ícones SVG) está no [`docs/design/README.md`](docs/design/README.md); as "ideias novas" listadas lá (meta da festa, conquistas, checklist do rascunho) precisam ser decididas antes de implementar.
+Os mockups em [`docs/design/`](docs/design/) (estilo Duolingo; convidado em `screens/`, admin em [`admin/`](docs/design/admin/) com o [`SPEC.md`](docs/design/admin/SPEC.md)) são a **referência visual da interface**, implementada no passo 3.5. Não são código de produção. O sistema visual (fonte Nunito, botões 3D, cores, ícones SVG) está no [`docs/design/README.md`](docs/design/README.md); as "ideias novas" listadas lá (meta da festa, conquistas, checklist do rascunho) precisam ser decididas antes de implementar.
+
+- Telas novas do admin usam os componentes de `apps/web/src/components/admin/` (Button, Card, Field, StatusChip, SegmentedControl, Switch…), não as classes `.btn-*`/`.block-card` (que ficam só para o convidado).
+- Funções sem backend aparecem visíveis e inertes, marcadas "Em breve" pelo primitivo de `soon.tsx` (selo, ou um aviso único na tela com `hideBadge`/`describedBy`).
+- Conferência visual: `pnpm --filter @kokka/web design:shots [telas] [--mobile]` semeia o banco `kokka_shots`, tira os shots e compara com os PNGs em `docs/design/admin/impl/compare/`.
 
 ## Marca
 
@@ -155,11 +159,12 @@ Cores da interface do Kokka (admin, telas do sistema). Logos e ícone em `.githu
 2. **Admin**: login (Better Auth, seed do usuário), CRUD de eventos, personalização, geração do QR e arte para impressão
 3. **Convidado**: galeria `/e/{slug}`, upload multipart ao R2 com Uppy, registro da mídia, SSE
 
-3.5. **Redesign** (release MINOR próprio): visual de [`docs/design/`](docs/design/) no convidado (cabeçalho com mascote, botões grandes, progresso, "Enviados por você", tela de sucesso, galeria em mosaico, navegação inferior) e no admin (barra lateral, resumo em blocos, cards por status). Sem meta da festa, conquistas nem checklist do rascunho; sem mudar regras de upload, API ou banco.
+3.5. **Redesign** — ✅ **concluído em `v0.4.0`**. Visual de [`docs/design/`](docs/design/) no convidado (cabeçalho com mascote, botões grandes, progresso, "Enviados por você", tela de sucesso, galeria em mosaico, navegação inferior) e no admin conforme [`docs/design/admin/SPEC.md`](docs/design/admin/SPEC.md) (lateral escura; telas Eventos, Evento com abas, Mídias, Telão, Configurações; login e novo evento). Sem meta da festa, conquistas nem checklist do rascunho; sem mudar regras de upload, API ou banco.
+   - Ficaram desenhados como "Em breve", para os passos abaixo: controles do Telão, tela cheia e ajustes (passo 5); Ocultar/Apagar em Mídias (passo 5); Baixar tudo (ZIP) e download de várias mídias (passo 6). Os "Padrões para novos eventos" (Configurações) ainda não têm passo: decidir antes de implementar.
 
 4. **Worker**: fila de processamento (thumb, HEIC→JPEG, MP4 720p), status e eventos realtime
-5. **Telão + gestão**: modo telão, ocultar/apagar com efeito imediato
-6. **Ciclo de vida**: encerrar, aviso de 24h, expiração e limpeza do R2, ZIP por streaming, backup diário do Postgres para o R2
+5. **Telão + gestão**: modo telão, ocultar/apagar com efeito imediato (ligar os controles já desenhados no Telão e em Mídias)
+6. **Ciclo de vida**: encerrar, aviso de 24h, expiração e limpeza do R2, ZIP por streaming (ligar "Baixar tudo" e o download em lote), backup diário do Postgres para o R2
 7. **Qualidade**: testes em aparelhos reais, teste de carga (~150 uploads simultâneos), monitoramento, evento piloto
    - **Pendente do passo 3, obrigatório antes do primeiro evento**: teste do envio em celular real (iPhone e Android), que foi pulado no passo 3. Cobrir: câmera ("Tirar foto" e "Gravar vídeo"), vídeo grande (perto de 1 GB / 3 min, várias partes e retomada), HEIC e MOV de iPhone, e se o iOS converte HEIC para JPEG ao escolher da galeria.
 
