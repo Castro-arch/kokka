@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node --watch --env-file-if-exists=../../.env src/index.ts",
     "start": "node src/index.ts",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "requeue": "node --env-file-if-exists=../../.env src/requeue.ts"
   },
   "dependencies": {
     "@kokka/db": "workspace:*",
