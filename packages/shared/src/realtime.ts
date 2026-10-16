@@ -3,16 +3,18 @@ export function eventChannel(eventId: string): string {
   return `event:${eventId}`;
 }
 
-/** What happened to a media item. `ready` comes from the worker (step 4). */
+/** What happened to a media item. `ready` and `failed` come from the worker. */
 export type RealtimeMessage =
   | { type: "media.processing"; mediaId: string }
   | { type: "media.ready"; mediaId: string }
+  | { type: "media.failed"; mediaId: string }
   | { type: "media.hidden"; mediaId: string }
   | { type: "media.deleted"; mediaId: string };
 
 const MESSAGE_TYPES = new Set<string>([
   "media.processing",
   "media.ready",
+  "media.failed",
   "media.hidden",
   "media.deleted",
 ]);
