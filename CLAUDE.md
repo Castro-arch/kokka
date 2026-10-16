@@ -63,7 +63,7 @@ build(infra): add worker dockerfile with ffmpeg
 - **Postgres + Drizzle ORM** em `packages/db` (schema, migrations, client)
 - **Redis**: filas BullMQ e pub/sub do realtime
 - **BullMQ** em `apps/worker`: processamento de mídia, ZIP, ciclo de vida
-- **Storage S3** (`@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner`) para todas as mídias: **Cloudflare R2** em produção, **SeaweedFS** (gateway S3) no Docker Compose local, com o bucket criado por um container de init com `aws-cli`. Cliente e URLs assinadas em `@kokka/shared/storage` (usado por web e worker); cada app valida o próprio env e passa a config.
+- **Storage S3** (`@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner`) para todas as mídias: **Cloudflare R2** em produção, **SeaweedFS** (gateway S3) no Docker Compose local, com o bucket criado por um container de init com `aws-cli`; sem Docker, um bucket R2 só de desenvolvimento (`.env.example`). Cliente e URLs assinadas em `@kokka/shared/storage` (usado por web e worker); cada app valida o próprio env e passa a config.
 - **Better Auth** para login do cliente (email + senha). Sem cadastro público.
 - **Uppy** (`@uppy/aws-s3` multipart) para upload resumível direto ao R2
 - **sharp** (imagens) e **ffmpeg** (vídeos) no worker; sharp também no web, só para a capa do evento
