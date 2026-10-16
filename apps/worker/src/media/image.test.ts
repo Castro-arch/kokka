@@ -7,12 +7,13 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { InvalidMediaError } from "./errors.ts";
 import { deriveImage, isHeif } from "./image.ts";
 
-function hasTool(command: string, args: string[]): boolean {
+/** Installed, whatever its exit code: some libheif versions exit non-zero for --version. */
+function hasTool(command: string): boolean {
   try {
-    execFileSync(command, args, { stdio: "ignore" });
+    execFileSync(command, ["--version"], { stdio: "ignore" });
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code !== "ENOENT";
   }
 }
 
@@ -94,7 +95,7 @@ describe("isHeif", () => {
 });
 
 // Needs libheif-tools with an HEVC encoder and decoder (the worker image and CI install them).
-describe.runIf(hasTool("heif-enc", ["--version"]) && hasTool("heif-dec", ["--version"]))(
+describe.runIf(hasTool("heif-enc") && (hasTool("heif-dec") || hasTool("heif-convert")))(
   "HEIC photos",
   () => {
     it("decodes them through heif-dec", async () => {

@@ -2,7 +2,7 @@ import { open, readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import sharp from "sharp";
 import { InvalidMediaError } from "./errors.ts";
-import { run } from "./run.ts";
+import { MissingToolError, run } from "./run.ts";
 
 /** Gallery thumbnail: WebP, longest side. */
 export const THUMB_MAX_SIDE = 480;
@@ -48,10 +48,18 @@ export async function isHeif(path: string, mime: string): Promise<boolean> {
  */
 async function decodeHeif(input: string, workDir: string): Promise<string> {
   const output = join(workDir, "decoded.png");
-  await run("heif-dec", [input, output], HEIF_TIMEOUT_MS).catch((error: unknown) => {
-    if (error instanceof Error && error.name === "MissingToolError") throw error;
-    throw new InvalidMediaError("A foto HEIC não pôde ser lida.", { cause: error });
-  });
+  // libheif 1.18 renamed heif-convert to heif-dec; older distros (Ubuntu 24.04) only have the
+  // old name.
+  const decode = (command: string) => run(command, [input, output], HEIF_TIMEOUT_MS);
+  await decode("heif-dec")
+    .catch((error: unknown) => {
+      if (error instanceof MissingToolError) return decode("heif-convert");
+      throw error;
+    })
+    .catch((error: unknown) => {
+      if (error instanceof MissingToolError) throw error;
+      throw new InvalidMediaError("A foto HEIC não pôde ser lida.", { cause: error });
+    });
   const decoded = (await readdir(workDir))
     .filter((name) => /^decoded(-\d+)?\.png$/.test(name))
     .sort();
